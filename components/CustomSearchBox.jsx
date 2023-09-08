@@ -1,0 +1,67 @@
+import React, { useRef, useState } from "react";
+import { useSearchBox } from "react-instantsearch";
+import { Box, Input, InputGroup, InputRightAddon } from "@chakra-ui/react";
+import { FaSearch } from "react-icons/fa";
+
+import { Highlight } from "react-instantsearch";
+import Autosuggest from "react-autosuggest";
+
+function CustomSearchBox(props) {
+  const { query, refine, clear, isSearchStalled } = useSearchBox(props);
+  const [inputValue, setInputValue] = useState(query);
+  const inputRef = useRef(null);
+
+  function setQuery(newQuery) {
+    setInputValue(newQuery);
+
+    refine(newQuery);
+  }
+
+  return (
+    <form
+      action=""
+      role="search"
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (inputRef.current) {
+          inputRef.current.blur();
+        }
+      }}
+      onReset={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        setQuery("");
+
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }}
+    >
+      <Box width="100%">
+        <Input
+          variant="filled"
+          bg="#3A3B3C"
+          ref={inputRef}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          placeholder="Search plans"
+          spellCheck={false}
+          maxLength={512}
+          type="search"
+          value={inputValue}
+          onChange={(event) => {
+            setQuery(event.currentTarget.value);
+          }}
+          autoFocus
+        />
+      </Box>
+    </form>
+  );
+}
+
+export default CustomSearchBox;

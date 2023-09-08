@@ -1,4 +1,10 @@
-import { Box, Flex, Stack, useBreakpointValue } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Flex,
+  Stack,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import Head from "next/head";
 import * as React from "react";
 
@@ -30,14 +36,14 @@ const Layout = ({
         /> */}
       </Head>
       <Box
-        as="section"
-        width="100vw"
         height="100vh"
-        bgColor="black"
         overflow="hidden"
+        position="relative"
+        minWidth="100%"
+        bgColor="#030303"
+        p="0"
       >
         <Navbar />
-
         {children}
       </Box>
     </>

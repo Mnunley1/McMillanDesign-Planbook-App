@@ -1,4 +1,3 @@
-import { connectSortBy } from "react-instantsearch-dom";
 import {
   Button,
   Select,
@@ -13,16 +12,19 @@ import {
   MenuCommand,
   MenuDivider,
 } from "@chakra-ui/react";
+import { useSortBy } from "react-instantsearch";
 
-function SortBy({ items, refine, createURL }) {
+function CustomSortBy(props) {
+  const { initialIndex, currentRefinement, options, refine, canRefine } =
+    useSortBy(props);
   return (
     <Menu>
-      <MenuButton as={Button} variant="link" colorScheme="teal">
+      <MenuButton as={Button} variant="link" color="white">
         Sort By
       </MenuButton>
-      <MenuList minWidth="150px" type="radio" color="teal.500">
+      <MenuList minWidth="150px" type="radio" zIndex="9999">
         <MenuOptionGroup>
-          {items.map((item) => (
+          {options.map((item) => (
             <MenuItemOption
               key={item.label}
               value={item.label}
@@ -30,13 +32,9 @@ function SortBy({ items, refine, createURL }) {
                 event.preventDefault();
                 refine(item.value);
               }}
+              color="black"
             >
-              <a
-                href={createURL(item.value)}
-                style={{ textDecoration: "none", color: "black" }}
-              >
-                {item.label}
-              </a>
+              {item.label}
             </MenuItemOption>
           ))}
         </MenuOptionGroup>
@@ -45,4 +43,4 @@ function SortBy({ items, refine, createURL }) {
   );
 }
 
-export const CustomSortBy = connectSortBy(SortBy);
+export default CustomSortBy;
