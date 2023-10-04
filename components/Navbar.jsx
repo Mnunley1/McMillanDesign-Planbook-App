@@ -4,7 +4,15 @@ import {
   HStack,
   Heading,
   IconButton,
+  Spacer,
 } from "@chakra-ui/react";
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 import { FiBell, FiSearch } from "react-icons/fi";
 
 function Navbar() {
@@ -14,21 +22,15 @@ function Navbar() {
         <Heading fontWeight="sm" color="white">
           McMillan Design
         </Heading>
-        <HStack spacing={{ base: "2", md: "4" }}>
-          <ButtonGroup variant="tertiary.accent" spacing="1">
-            <IconButton
-              icon={<FiSearch />}
-              aria-label="Search"
-              display={{ base: "flex", md: "none" }}
-              isRound
-            />
-            <IconButton
-              icon={<FiBell />}
-              aria-label="Show notification"
-              isRound
-            />
-          </ButtonGroup>
-        </HStack>
+        <Spacer />
+        <SignedIn>
+          {/* Mount the UserButton component */}
+          <UserButton afterSignOutUrl="/sign-in" />
+        </SignedIn>
+        <SignedOut>
+          {/* Signed out users get sign in button */}
+          <SignInButton />
+        </SignedOut>
       </HStack>
     </Box>
   );

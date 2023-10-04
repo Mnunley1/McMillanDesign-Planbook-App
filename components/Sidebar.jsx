@@ -53,6 +53,17 @@ export const Sidebar = () => (
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
+            SQFT.
+          </Heading>
+          <CustomRangeInput
+            attribute="sqft"
+            precision={2}
+            min={1000}
+            max={10000}
+          />
+        </Box>
+        <Box>
+          <Heading size="sm" mb="1" color="white">
             Plan Depth (ft.)
           </Heading>
           <CustomRangeInput
