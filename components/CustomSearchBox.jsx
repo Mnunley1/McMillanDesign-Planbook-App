@@ -43,8 +43,8 @@ function CustomSearchBox(props) {
     >
       <Box width="100%">
         <Input
-          variant="filled"
-          bg="#3A3B3C"
+          variant="outline"
+          bg="white"
           ref={inputRef}
           autoComplete="off"
           autoCorrect="off"

@@ -31,7 +31,7 @@ import CustomSearchBox from "./CustomSearchBox";
 import CustomNumericMenu from "./CustomNumericMenu";
 
 export const Sidebar = () => (
-  <Flex as="section" minH="100%">
+  <Flex as="section" minH="100%" display={["none", "none", "block"]}>
     <Stack width="100%" justifyContent="space-between">
       <Stack spacing="6">
         <CustomSearchBox />
@@ -104,12 +104,24 @@ export const Sidebar = () => (
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
-            Master
+            Vehicle Spaces
           </Heading>
-          <CustomToggleRefinement
-            attribute="firstFloorMaster"
-            label="First Floor Master"
+          <CustomNumericMenu
+            attribute="vehicleSpaces"
+            items={[
+              { label: "All" },
+              { label: "1+", start: 1 },
+              { label: "2+", start: 2 },
+              { label: "3+", start: 3 },
+              { label: "4+", start: 4 },
+            ]}
           />
+        </Box>
+        <Box>
+          <Heading size="sm" mb="1" color="white">
+            Primary Suite
+          </Heading>
+          <CustomRefinementList attribute="primarySuite" />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">

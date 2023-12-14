@@ -39,10 +39,10 @@ function CustomRangeInput(props) {
     >
       <Stack direction="row" align="center">
         <Input
-          variant="filled"
+          variant="outlined"
           bg="#3A3B3C"
           type="number"
-          color="white"
+          bgColor="white"
           min={range.min}
           max={range.max}
           value={stripLeadingZeroFromInput(from || unsetNumberInputValue)}
@@ -57,10 +57,10 @@ function CustomRangeInput(props) {
         />
         <Text color="white">to</Text>
         <Input
-          variant="filled"
+          variant="outlined"
           bg="#3A3B3C"
           type="number"
-          color="white"
+          bgColor="white"
           min={range.min}
           max={range.max}
           value={stripLeadingZeroFromInput(to || unsetNumberInputValue)}

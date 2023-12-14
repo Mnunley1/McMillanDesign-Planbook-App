@@ -37,9 +37,9 @@ const Layout = ({
       </Head>
       <Box
         height="100vh"
-        overflow="hidden"
+        overflow="auto"
         position="relative"
-        minWidth="100%"
+        minWidth="100"
         bgColor="#030303"
         p="0"
       >
