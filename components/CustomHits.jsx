@@ -57,7 +57,8 @@ function CustomHits(props) {
                   <Text color="#E4E6EB" fontWeight="light" fontSize="md">
                     {hit.sqft} sqft.
                   </Text>
-                  <Text color="white">|</Text>
+                </HStack>
+                <HStack>
                   <Text color="#E4E6EB" fontWeight="light" fontSize="md">
                     Width: {hit.planWidth} ft.
                   </Text>
