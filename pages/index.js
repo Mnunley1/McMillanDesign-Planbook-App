@@ -10,9 +10,10 @@ import {
 } from "@chakra-ui/react";
 import qs from "qs";
 import algoliasearch from "algoliasearch/lite";
-import { InstantSearch, Stats } from "react-instantsearch";
+import { InstantSearch, Pagination, Stats } from "react-instantsearch";
 import CustomHits from "../components/CustomHits";
 import CustomSortBy from "../components/CustomSortBy";
+import CustomPagination from "../components/CustomPagination";
 import Sidebar from "../components/Sidebar";
 import MobileFilters from "../components/MobileFilters";
 import { withRouter } from "next/router";
@@ -133,6 +134,7 @@ function Home({ router }) {
             <SimpleGrid columns={[1, 1, 1, 2]} spacing={5}>
               <CustomHits />
             </SimpleGrid>
+            <CustomPagination />
           </Box>
           <MobileFilters
             onClick={hideFilters}
