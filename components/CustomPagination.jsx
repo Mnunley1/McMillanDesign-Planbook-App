@@ -1,4 +1,4 @@
-import { Button, Center, HStack } from "@chakra-ui/react";
+import { Button, Center, HStack, VStack } from "@chakra-ui/react";
 import React from "react";
 import { usePagination } from "react-instantsearch";
 
@@ -19,51 +19,56 @@ function CustomPagination(props) {
 
   return (
     <Center>
-      <HStack>
-        <PaginationItem
-          isDisabled={isFirstPage}
-          href={createURL(firstPageIndex)}
-          onClick={() => refine(firstPageIndex)}
-        >
-          First
-        </PaginationItem>
-        <PaginationItem
-          isDisabled={isFirstPage}
-          href={createURL(previousPageIndex)}
-          onClick={() => refine(previousPageIndex)}
-        >
-          Previous
-        </PaginationItem>
-        {pages.map((page) => {
-          const label = page + 1;
+      <VStack>
+        <HStack>
+          <PaginationItem
+            isDisabled={isFirstPage}
+            href={createURL(firstPageIndex)}
+            onClick={() => refine(firstPageIndex)}
+          >
+            First
+          </PaginationItem>
+          <PaginationItem
+            isDisabled={isFirstPage}
+            href={createURL(previousPageIndex)}
+            onClick={() => refine(previousPageIndex)}
+          >
+            Previous
+          </PaginationItem>
+          <PaginationItem
+            isDisabled={isLastPage}
+            href={createURL(nextPageIndex)}
+            onClick={() => refine(nextPageIndex)}
+          >
+            Next
+          </PaginationItem>
+          <PaginationItem
+            isDisabled={isLastPage}
+            href={createURL(lastPageIndex)}
+            onClick={() => refine(lastPageIndex)}
+          >
+            Last
+          </PaginationItem>
+        </HStack>
+        <HStack>
+          {pages.map((page) => {
+            const label = page + 1;
 
-          return (
-            <PaginationItem
-              key={page}
-              isDisabled={false}
-              aria-label={`Page ${label}`}
-              href={createURL(page)}
-              onClick={() => refine(page)}
-            >
-              {label}
-            </PaginationItem>
-          );
-        })}
-        <PaginationItem
-          isDisabled={isLastPage}
-          href={createURL(nextPageIndex)}
-          onClick={() => refine(nextPageIndex)}
-        >
-          Next
-        </PaginationItem>
-        <PaginationItem
-          isDisabled={isLastPage}
-          href={createURL(lastPageIndex)}
-          onClick={() => refine(lastPageIndex)}
-        >
-          Last
-        </PaginationItem>
-      </HStack>
+            return (
+              <PaginationItem
+                key={page}
+                isDisabled={false}
+                aria-label={`Page ${label}`}
+                href={createURL(page)}
+                onClick={() => refine(page)}
+                bgColor={currentRefinement === page ? "gold" : ""}
+              >
+                {label}
+              </PaginationItem>
+            );
+          })}
+        </HStack>
+      </VStack>
     </Center>
   );
 }

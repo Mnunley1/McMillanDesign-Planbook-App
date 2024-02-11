@@ -134,7 +134,7 @@ function Home({ router }) {
             <SimpleGrid columns={[1, 1, 1, 2]} spacing={5}>
               <CustomHits />
             </SimpleGrid>
-            <CustomPagination />
+            <CustomPagination padding={2} />
           </Box>
           <MobileFilters
             onClick={hideFilters}
