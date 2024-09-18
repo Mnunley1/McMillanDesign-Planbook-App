@@ -1,19 +1,17 @@
 import {
   Box,
   Button,
-  HStack,
   Heading,
   Image,
   SimpleGrid,
   Stack,
   Text,
-  Wrap,
 } from "@chakra-ui/react";
-
 import { Cloudinary } from "@cloudinary/url-gen";
+import noImage from "../public/no-image.jpg";
 
 export default function FloorPlanInfo({ data }) {
-  const image = data?.planPdf[0].url;
+  const image = data?.planPdf[0].url ? data?.planPdf[0].url : noImage;
   const file = image?.split("/").pop();
 
   // Create and configure your Cloudinary instance.

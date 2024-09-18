@@ -1,24 +1,15 @@
-import React, { btnRef, Transformation } from "react";
-import Link from "next/link";
-import { useHits } from "react-instantsearch";
 import {
-  Badge,
   Box,
-  Center,
-  IconButton,
-  Icon,
-  Image,
-  Skeleton,
-  Spacer,
-  Text,
-  WrapItem,
   Heading,
-  Stack,
   HStack,
-  Divider,
-  useDisclosure,
+  Image,
+  Spacer,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
-//import noImage from "../../public/images/TALIS-IMAGES-COMING-SOON.png";
+import Link from "next/link";
+import React from "react";
+import { useHits } from "react-instantsearch";
 
 function CustomHits(props) {
   const { hits, results, sendEvent } = useHits(props);
@@ -39,7 +30,12 @@ function CustomHits(props) {
             cursor="pointer"
           >
             {!hit.image ? (
-              <Image h="auto" w="100%" src={noImage} alt="No Image" />
+              <Image
+                h="auto"
+                w="100%"
+                src="../public/no-image.jpg"
+                alt="No Image"
+              />
             ) : (
               <Image h="auto" w="100%" src={hit.image} alt={hit.image} />
             )}
@@ -64,7 +60,7 @@ function CustomHits(props) {
                   </Text>
                   <Text color="white">|</Text>
                   <Text color="#E4E6EB" fontWeight="light" fontSize="md">
-                    Depth: {hit.planWidth} ft.
+                    Depth: {hit.planDepth} ft.
                   </Text>
                   <Spacer />
                 </HStack>
