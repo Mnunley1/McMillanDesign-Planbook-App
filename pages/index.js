@@ -1,5 +1,3 @@
-import Head from "next/head";
-import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -8,19 +6,21 @@ import {
   SimpleGrid,
   Spacer,
 } from "@chakra-ui/react";
-import qs from "qs";
 import algoliasearch from "algoliasearch/lite";
-import { InstantSearch, Pagination, Stats } from "react-instantsearch";
-import CustomHits from "../components/CustomHits";
-import CustomSortBy from "../components/CustomSortBy";
-import CustomPagination from "../components/CustomPagination";
-import Sidebar from "../components/Sidebar";
-import MobileFilters from "../components/MobileFilters";
+import Head from "next/head";
 import { withRouter } from "next/router";
-
+import qs from "qs";
+import { useEffect, useState } from "react";
+import { InstantSearch, Stats } from "react-instantsearch";
+import CustomHits from "../components/CustomHits";
+import CustomPagination from "../components/CustomPagination";
+import CustomSortBy from "../components/CustomSortBy";
+import Layout from "../components/Layout";
+import MobileFilters from "../components/MobileFilters";
+import Sidebar from "../components/Sidebar";
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
-  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
+  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY
 );
 
 const createURL = (state) => `?${qs.stringify(state)}`;
@@ -79,70 +79,81 @@ function Home({ router }) {
         onSearchStateChange={onSearchStateChange}
         createURL={createURL}
       >
-        <Flex overflowX="hidden">
-          <Box
-            bgColor="#1e1e1e"
-            minWidth="30%"
-            height="100%"
-            p="5"
-            m="5"
-            borderRadius="lg"
-            display={["none", "none", "block"]}
-          >
-            <Sidebar searchState={searchState} />
-          </Box>
-          <Box w="100%" h="100%" p={5}>
-            <HStack mb="5" color="white">
-              <Stats
-                translations={{
-                  stats(nbHits) {
-                    return `${nbHits} results found`;
-                  },
-                }}
-              />
+        <Layout>
+          <Flex overflowX="hidden">
+            <Box
+              bgColor="#1e1e1e"
+              minWidth="30%"
+              height="100%"
+              p="5"
+              m="5"
+              borderRadius="lg"
+              display={["none", "none", "block"]}
+            >
+              <Sidebar searchState={searchState} />
+            </Box>
+            <Box w="100%" h="100%" p={5}>
+              <HStack mb="5" color="white">
+                <Stats
+                  translations={{
+                    stats(nbHits) {
+                      return `${nbHits} results found`;
+                    },
+                  }}
+                />
 
-              <Spacer />
-              <Button
-                onClick={displayFilters}
-                display={["block", "block", "none"]}
-                variant="link"
-                colorScheme="yellow"
-              >
-                Filters
-              </Button>
-              <CustomSortBy
-                items={[
-                  { label: "Default", value: "floorPlans" },
-                  { label: "Bedrooms (asc)", value: "floorPlans_bedrooms_asc" },
-                  {
-                    label: "Bedrooms (desc)",
-                    value: "floorPlans_bedrooms_desc",
-                  },
-                  { label: "Plan Width (asc)", value: "floorPlans_width_asc" },
-                  {
-                    label: "Plan Width (desc)",
-                    value: "floorPlans_width_desc",
-                  },
-                  { label: "Plan Depth (asc)", value: "floorPlans_depth_asc" },
-                  {
-                    label: "Plan Depth (desc)",
-                    value: "floorPlans_depth_desc",
-                  },
-                ]}
-              />
-            </HStack>
-            <SimpleGrid columns={[1, 1, 1, 2]} spacing={5}>
-              <CustomHits />
-            </SimpleGrid>
-            <CustomPagination padding={2} />
-          </Box>
-          <MobileFilters
-            onClick={hideFilters}
-            setDisplay={setShowFilters}
-            searchState={searchState}
-            filters={showFilters}
-          />
-        </Flex>
+                <Spacer />
+                <Button
+                  onClick={displayFilters}
+                  display={["block", "block", "none"]}
+                  variant="link"
+                  colorScheme="yellow"
+                >
+                  Filters
+                </Button>
+                <CustomSortBy
+                  items={[
+                    { label: "Default", value: "floorPlans" },
+                    {
+                      label: "Bedrooms (asc)",
+                      value: "floorPlans_bedrooms_asc",
+                    },
+                    {
+                      label: "Bedrooms (desc)",
+                      value: "floorPlans_bedrooms_desc",
+                    },
+                    {
+                      label: "Plan Width (asc)",
+                      value: "floorPlans_width_asc",
+                    },
+                    {
+                      label: "Plan Width (desc)",
+                      value: "floorPlans_width_desc",
+                    },
+                    {
+                      label: "Plan Depth (asc)",
+                      value: "floorPlans_depth_asc",
+                    },
+                    {
+                      label: "Plan Depth (desc)",
+                      value: "floorPlans_depth_desc",
+                    },
+                  ]}
+                />
+              </HStack>
+              <SimpleGrid columns={[1, 1, 1, 2]} spacing={5}>
+                <CustomHits />
+              </SimpleGrid>
+              <CustomPagination padding={2} />
+            </Box>
+            <MobileFilters
+              onClick={hideFilters}
+              setDisplay={setShowFilters}
+              searchState={searchState}
+              filters={showFilters}
+            />
+          </Flex>
+        </Layout>
       </InstantSearch>
     </>
   );

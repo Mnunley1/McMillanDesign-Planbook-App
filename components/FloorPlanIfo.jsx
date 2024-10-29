@@ -11,8 +11,8 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import noImage from "../public/no-image.jpg";
 
 export default function FloorPlanInfo({ data }) {
-  const image = data?.planPdf[0].url ? data?.planPdf[0].url : noImage;
-  const file = image?.split("/").pop();
+  const image = data?.planPdf[0]?.url || noImage.src;
+  const file = image.split("/").pop();
 
   // Create and configure your Cloudinary instance.
   const cld = new Cloudinary({

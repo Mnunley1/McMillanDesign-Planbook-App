@@ -1,10 +1,4 @@
-import {
-  Box,
-  Container,
-  Flex,
-  Stack,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Box, useBreakpointValue } from "@chakra-ui/react";
 import Head from "next/head";
 import * as React from "react";
 

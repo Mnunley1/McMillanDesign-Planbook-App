@@ -1,19 +1,5 @@
-import {
-  Box,
-  ButtonGroup,
-  HStack,
-  Heading,
-  IconButton,
-  Spacer,
-} from "@chakra-ui/react";
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
-import { FiBell, FiSearch } from "react-icons/fi";
+import { Box, Heading, HStack, Spacer } from "@chakra-ui/react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 function Navbar() {
   return (
@@ -25,7 +11,7 @@ function Navbar() {
         <Spacer />
         <SignedIn>
           {/* Mount the UserButton component */}
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton />
         </SignedIn>
         <SignedOut>
           {/* Signed out users get sign in button */}
