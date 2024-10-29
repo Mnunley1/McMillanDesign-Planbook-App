@@ -17,7 +17,15 @@ export default function Page() {
         backgroundColor: "black",
       }}
     >
-      <SignIn />
+      <SignIn
+        appearance={{
+          baseTheme: "dark",
+          elements: {
+            footerAction: { display: "none" },
+          },
+        }}
+        showOptionalFields={false}
+      />
     </div>
   );
 }
