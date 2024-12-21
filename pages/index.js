@@ -11,7 +11,7 @@ import Head from "next/head";
 import { withRouter } from "next/router";
 import { useState } from "react";
 import { InstantSearch, Stats } from "react-instantsearch";
-import { createInstantSearchRouterNext } from 'react-instantsearch-router-nextjs';
+import { createInstantSearchRouterNext } from "react-instantsearch-router-nextjs";
 import CustomHits from "../components/CustomHits";
 import CustomPagination from "../components/CustomPagination";
 import CustomSortBy from "../components/CustomSortBy";
@@ -28,13 +28,88 @@ function Home({ router }) {
   const [showFilters, setShowFilters] = useState(false);
 
   const routing = {
+    stateMapping: {
+      stateToRoute(uiState) {
+        const indexUiState = uiState.floorPlans || {};
+        const route = {
+          ...indexUiState.refinementList,
+          ...Object.entries(indexUiState.range || {}).reduce(
+            (acc, [key, value]) => ({
+              ...acc,
+              [key]: `${value.min || ""}-${value.max || ""}`,
+            }),
+            {}
+          ),
+          ...indexUiState.menu,
+          ...Object.entries(indexUiState.toggle || {}).reduce(
+            (acc, [key, value]) => ({
+              ...acc,
+              ...(value ? { [key]: "true" } : {}),
+            }),
+            {}
+          ),
+          ...indexUiState.numericMenu,
+        };
+
+        // Remove undefined and empty values
+        return Object.fromEntries(
+          Object.entries(route).filter(([_, value]) => 
+            value !== undefined && 
+            value !== "" && 
+            value !== null &&
+            !(Array.isArray(value) && value.length === 0)
+          )
+        );
+      },
+
+      routeToState(routeState) {
+        const refinementList = {};
+        const range = {};
+        const menu = {};
+        const toggle = {};
+        const numericMenu = {};
+
+        Object.entries(routeState).forEach(([key, value]) => {
+          if (!value) return; // Skip empty values
+
+          if (typeof value === "string" && value.includes("-")) {
+            const [min, max] = value.split("-");
+            range[key] = {
+              min: min ? Number(min) : undefined,
+              max: max ? Number(max) : undefined,
+            };
+          } else if (
+            ["numberOfLevels", "planType", "garageOrientation", "primarySuite"].includes(key)
+          ) {
+            refinementList[key] = [value];
+          } else if (["bedrooms", "vehicles"].includes(key)) {
+            numericMenu[key] = value;
+          } else if (["basement", "walkupAttic"].includes(key)) {
+            toggle[key] = value === "true";
+          } else if (["price", "size"].includes(key)) {
+            numericMenu[key] = value;
+          }
+        });
+
+        return {
+          floorPlans: {
+            refinementList: Object.keys(refinementList).length > 0 ? refinementList : undefined,
+            range: Object.keys(range).length > 0 ? range : undefined,
+            menu: Object.keys(menu).length > 0 ? menu : undefined,
+            toggle: Object.keys(toggle).length > 0 ? toggle : undefined,
+            numericMenu: Object.keys(numericMenu).length > 0 ? numericMenu : undefined,
+          },
+        };
+      },
+    },
     router: createInstantSearchRouterNext({
-      serverUrl: 'https://your-website.com',
+      serverUrl: typeof window !== 'undefined' ? window.location.origin : 'https://your-website.com',
       routerOptions: {
         shallow: true,
       },
       singletonRouter: router,
-      cleanUrlOnDispose: false, // Adopt the next major version behavior
+      cleanUrlOnDispose: true,
+      writeDelay: 400, // Add a small delay to prevent rapid URL updates
     }),
   };
 
@@ -58,6 +133,15 @@ function Home({ router }) {
         indexName="floorPlans"
         routing={routing}
         stalledSearchDelay={500}
+        initialUiState={{
+          floorPlans: {
+            refinementList: {},
+            range: {},
+            menu: {},
+            toggle: {},
+            numericMenu: {},
+          },
+        }}
       >
         <Layout>
           <Flex overflowX="hidden">
@@ -96,27 +180,27 @@ function Home({ router }) {
                     { label: "Default", value: "floorPlans" },
                     {
                       label: "Bedrooms (asc)",
-                      value: "floorPlans_bedrooms_asc",
+                      value: "bedrooms_asc",
                     },
                     {
                       label: "Bedrooms (desc)",
-                      value: "floorPlans_bedrooms_desc",
+                      value: "bedrooms_desc",
                     },
                     {
                       label: "Plan Width (asc)",
-                      value: "floorPlans_width_asc",
+                      value: "width_asc",
                     },
                     {
                       label: "Plan Width (desc)",
-                      value: "floorPlans_width_desc",
+                      value: "width_desc",
                     },
                     {
                       label: "Plan Depth (asc)",
-                      value: "floorPlans_depth_asc",
+                      value: "depth_asc",
                     },
                     {
                       label: "Plan Depth (desc)",
-                      value: "floorPlans_depth_desc",
+                      value: "depth_desc",
                     },
                   ]}
                 />

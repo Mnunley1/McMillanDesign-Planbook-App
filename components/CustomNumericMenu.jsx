@@ -6,8 +6,8 @@ function CustomNumericMenu(props) {
   const { items, refine } = useNumericMenu(props);
 
   // Find the currently selected item
-  const selectedItem = items.find(item => item.isRefined);
-  const currentValue = selectedItem ? selectedItem.value : '';
+  const selectedItem = items.find((item) => item.isRefined);
+  const currentValue = selectedItem ? selectedItem.value : "";
 
   return (
     <RadioGroup value={currentValue}>

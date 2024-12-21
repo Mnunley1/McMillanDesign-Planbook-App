@@ -4,28 +4,25 @@ import { useRange } from "react-instantsearch";
 
 const unsetNumberInputValue = "";
 
-function CustomRangeInput(props) {
+function CustomRangeInput({ min, max, ...props }) {
   const { start, range, canRefine, refine } = useRange(props);
   const step = 1 / Math.pow(10, props.precision || 0);
   const values = {
-    min:
-      start[0] !== -Infinity && start[0] !== range.min
-        ? start[0]
-        : unsetNumberInputValue,
-    max:
-      start[1] !== Infinity && start[1] !== range.max
-        ? start[1]
-        : unsetNumberInputValue,
+    min: start[0] === -Infinity ? unsetNumberInputValue : start[0],
+    max: start[1] === Infinity ? unsetNumberInputValue : start[1],
   };
   const [prevValues, setPrevValues] = useState(values);
 
   const [{ from, to }, setRange] = useState({
-    from: values.min?.toString(),
-    to: values.max?.toString(),
+    from: "",
+    to: "",
   });
 
   if (values.min !== prevValues.min || values.max !== prevValues.max) {
-    setRange({ from: values.min?.toString(), to: values.max?.toString() });
+    setRange({
+      from: values.min === -Infinity ? "" : values.min?.toString(),
+      to: values.max === Infinity ? "" : values.max?.toString(),
+    });
     setPrevValues(values);
   }
 
@@ -33,7 +30,6 @@ function CustomRangeInput(props) {
     <form
       onSubmit={(event) => {
         event.preventDefault();
-
         refine([from ? Number(from) : undefined, to ? Number(to) : undefined]);
       }}
     >
@@ -43,15 +39,12 @@ function CustomRangeInput(props) {
           bg="#3A3B3C"
           type="number"
           bgColor="white"
-          min={range.min}
-          max={range.max}
           value={stripLeadingZeroFromInput(from || unsetNumberInputValue)}
           step={step}
-          placeholder={range.min?.toString()}
+          placeholder={min?.toString() || "Min"}
           disabled={!canRefine}
           onInput={({ currentTarget }) => {
             const value = currentTarget.value;
-
             setRange({ from: value || unsetNumberInputValue, to });
           }}
         />
@@ -61,15 +54,12 @@ function CustomRangeInput(props) {
           bg="#3A3B3C"
           type="number"
           bgColor="white"
-          min={range.min}
-          max={range.max}
           value={stripLeadingZeroFromInput(to || unsetNumberInputValue)}
           step={step}
-          placeholder={range.max?.toString()}
+          placeholder={max?.toString() || "Max"}
           disabled={!canRefine}
           onInput={({ currentTarget }) => {
             const value = currentTarget.value;
-
             setRange({ from, to: value || unsetNumberInputValue });
           }}
         />
@@ -81,8 +71,8 @@ function CustomRangeInput(props) {
   );
 }
 
-export default CustomRangeInput;
-
 function stripLeadingZeroFromInput(value) {
   return value.replace(/^(0+)\d/, (part) => Number(part).toString());
 }
+
+export default CustomRangeInput;
