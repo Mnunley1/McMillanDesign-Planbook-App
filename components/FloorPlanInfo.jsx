@@ -11,9 +11,8 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import noImage from "../public/no-image.jpg";
 
 export default function FloorPlanInfo({ data }) {
-  const image = data?.planPdf[0]?.url || noImage.src;
-  const file = image.split("/").pop();
-
+  const image = data?.planPdf[0]?.url;
+  const file = image ? image.split("/").pop() : null;
   // Create and configure your Cloudinary instance.
   const cld = new Cloudinary({
     cloud: {
@@ -21,32 +20,39 @@ export default function FloorPlanInfo({ data }) {
     },
   });
 
-  // Use the image with public ID, 'front_face'.
-  const myImage = cld.image(file);
-
-  // Apply the transformation.
-  const url = myImage.toURL();
+  // Only create Cloudinary URL if we have a file
+  const url = file ? cld.image(file).toURL() : null;
 
   const downloadFile = (fileName = `${data?.planNumber}.pdf`) => {
+    if (!url) {
+      console.error("No PDF URL available");
+      return;
+    }
+
     fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/pdf",
       },
     })
-      .then((response) => response.blob())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.blob();
+      })
       .then((blob) => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-
+        const downloadUrl = window.URL.createObjectURL(new Blob([blob]));
         const link = document.createElement("a");
-        link.href = url;
+        link.href = downloadUrl;
         link.download = fileName;
-
         document.body.appendChild(link);
-
         link.click();
-
         link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl); // Clean up the URL object
+      })
+      .catch((error) => {
+        console.error("Error downloading PDF:", error);
       });
   };
 
@@ -54,7 +60,7 @@ export default function FloorPlanInfo({ data }) {
     <Box width="100%" bgColor="#1e1e1e" borderRadius="lg">
       <Stack align="stretch">
         <Image
-          src={data?.planPdf[0].url}
+          src={data?.planPdf[0].url || noImage.src}
           width="100%"
           borderTopRadius="lg"
           alt="plan image"

@@ -30,11 +30,11 @@ import CustomToggleRefinement from "./CustomToggleRefinement";
 import CustomSearchBox from "./CustomSearchBox";
 import CustomNumericMenu from "./CustomNumericMenu";
 
-export const Sidebar = () => (
+export const Sidebar = ({ searchState }) => (
   <Flex as="section" minH="100%" display={["none", "none", "block"]}>
     <Stack width="100%" justifyContent="space-between">
       <Stack spacing="6">
-        <CustomSearchBox />
+        <CustomSearchBox defaultRefinement={searchState?.query || ""} />
         <Box>
           <Heading size="sm" mb="1" color="white">
             Bedrooms
@@ -49,6 +49,7 @@ export const Sidebar = () => (
               { label: "4+", start: 4 },
               { label: "5+", start: 5 },
             ]}
+            defaultRefinement={searchState?.bedrooms}
           />
         </Box>
         <Box>
@@ -60,6 +61,7 @@ export const Sidebar = () => (
             precision={2}
             min={1000}
             max={10000}
+            defaultRefinement={searchState?.sqft}
           />
         </Box>
         <Box>
@@ -71,6 +73,7 @@ export const Sidebar = () => (
             precision={2}
             min={10}
             max={100}
+            defaultRefinement={searchState?.planDepth}
           />
         </Box>
         <Box>
@@ -82,25 +85,26 @@ export const Sidebar = () => (
             precision={2}
             min={10}
             max={200}
+            defaultRefinement={searchState?.planWidth}
           />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
             Plan Type
           </Heading>
-          <CustomRefinementList attribute="planType" />
+          <CustomRefinementList attribute="planType" defaultRefinement={searchState?.planType} />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
             Number of Levels
           </Heading>
-          <CustomRefinementList attribute="numberOfLevels" />
+          <CustomRefinementList attribute="numberOfLevels" defaultRefinement={searchState?.numberOfLevels} />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
             Garage Orientation
           </Heading>
-          <CustomRefinementList attribute="garageOrientation" />
+          <CustomRefinementList attribute="garageOrientation" defaultRefinement={searchState?.garageOrientation} />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
@@ -115,19 +119,20 @@ export const Sidebar = () => (
               { label: "3+", start: 3 },
               { label: "4+", start: 4 },
             ]}
+            defaultRefinement={searchState?.vehicleSpaces}
           />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
             Primary Suite
           </Heading>
-          <CustomRefinementList attribute="primarySuite" />
+          <CustomRefinementList attribute="primarySuite" defaultRefinement={searchState?.primarySuite} />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
             Basement
           </Heading>
-          <CustomToggleRefinement attribute="basement" label="Basement" />
+          <CustomToggleRefinement attribute="basement" label="Basement" defaultRefinement={searchState?.basement} />
         </Box>
         <Box>
           <Heading size="sm" mb="1" color="white">
@@ -136,6 +141,7 @@ export const Sidebar = () => (
           <CustomToggleRefinement
             attribute="walkupAttic"
             label="Walkup Attic"
+            defaultRefinement={searchState?.walkupAttic}
           />
         </Box>
       </Stack>

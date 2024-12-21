@@ -1,46 +1,17 @@
 import {
-  Avatar,
   Box,
   Button,
   ButtonGroup,
-  Flex,
-  HStack,
-  Heading,
-  Icon,
-  IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Stack,
-  StackDivider,
-  Text,
-  useDisclosure,
   CloseButton,
+  Heading,
+  Stack,
 } from "@chakra-ui/react";
-import {
-  FiBookmark,
-  FiClock,
-  FiGrid,
-  FiHelpCircle,
-  FiMoreVertical,
-  FiPieChart,
-  FiSearch,
-  FiSettings,
-} from "react-icons/fi";
 
-import CustomRefinementList from "./CustomRefinementList";
-import CustomRangeInput from "./CustomRangeInput";
-import CustomToggleRefinement from "./CustomToggleRefinement";
-import CustomSearchBox from "./CustomSearchBox";
 import CustomNumericMenu from "./CustomNumericMenu";
-import { useEffect } from "react";
+import CustomRangeInput from "./CustomRangeInput";
+import CustomRefinementList from "./CustomRefinementList";
+import CustomSearchBox from "./CustomSearchBox";
+import CustomToggleRefinement from "./CustomToggleRefinement";
 
 export const MobileFilters = ({ filters, onClick, searchState }) => {
   return (

@@ -9,58 +9,39 @@ import {
 import algoliasearch from "algoliasearch/lite";
 import Head from "next/head";
 import { withRouter } from "next/router";
-import qs from "qs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { InstantSearch, Stats } from "react-instantsearch";
+import { createInstantSearchRouterNext } from 'react-instantsearch-router-nextjs';
 import CustomHits from "../components/CustomHits";
 import CustomPagination from "../components/CustomPagination";
 import CustomSortBy from "../components/CustomSortBy";
 import Layout from "../components/Layout";
 import MobileFilters from "../components/MobileFilters";
 import Sidebar from "../components/Sidebar";
+
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 );
 
-const createURL = (state) => `?${qs.stringify(state)}`;
-
-const searchStateToUrl = (router, searchState) =>
-  searchState ? `${router.pathname}${createURL(searchState)}` : "";
-
-const urlToSearchState = (router) => qs.parse(router.query);
-
 function Home({ router }) {
   const [showFilters, setShowFilters] = useState(false);
-  const [searchState, setSearchState] = useState(urlToSearchState(router));
 
-  useEffect(() => {
-    const nextSearchState = urlToSearchState(router);
-    if (JSON.stringify(searchState) !== JSON.stringify(nextSearchState)) {
-      setSearchState(nextSearchState);
-    }
-
-    // eslint-disable-next-line
-  }, [router.pathname]);
-
-  function onSearchStateChange(nextSearchState) {
-    clearTimeout(setStateId.current);
-
-    setStateId.current = setTimeout(() => {
-      //console.log('query [nextSearchState]:', nextSearchState);
-      router.push({
-        pathname: router.pathname,
-        query: qs.stringify(nextSearchState),
-      });
-    }, DEBOUNCE_TIME);
-
-    setSearchState(nextSearchState);
-    //console.log(searchState);
-  }
+  const routing = {
+    router: createInstantSearchRouterNext({
+      serverUrl: 'https://your-website.com',
+      routerOptions: {
+        shallow: true,
+      },
+      singletonRouter: router,
+      cleanUrlOnDispose: false, // Adopt the next major version behavior
+    }),
+  };
 
   const displayFilters = () => {
     setShowFilters(true);
   };
+
   const hideFilters = () => {
     setShowFilters(false);
   };
@@ -75,9 +56,8 @@ function Home({ router }) {
       <InstantSearch
         searchClient={searchClient}
         indexName="floorPlans"
-        searchState={searchState}
-        onSearchStateChange={onSearchStateChange}
-        createURL={createURL}
+        routing={routing}
+        stalledSearchDelay={500}
       >
         <Layout>
           <Flex overflowX="hidden">
@@ -90,7 +70,7 @@ function Home({ router }) {
               borderRadius="lg"
               display={["none", "none", "block"]}
             >
-              <Sidebar searchState={searchState} />
+              <Sidebar />
             </Box>
             <Box w="100%" h="100%" p={5}>
               <HStack mb="5" color="white">
@@ -149,7 +129,6 @@ function Home({ router }) {
             <MobileFilters
               onClick={hideFilters}
               setDisplay={setShowFilters}
-              searchState={searchState}
               filters={showFilters}
             />
           </Flex>
