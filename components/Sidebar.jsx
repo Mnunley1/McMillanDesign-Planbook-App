@@ -149,7 +149,7 @@ export const Sidebar = ({ searchState }) => {
             <CustomToggleRefinement
               attribute="basement"
               label="Basement"
-              defaultRefinement={searchState?.basement}
+              defaultRefinement={searchState?.toggle?.basement || false}
             />
           </Box>
           <Box>
@@ -159,7 +159,7 @@ export const Sidebar = ({ searchState }) => {
             <CustomToggleRefinement
               attribute="walkupAttic"
               label="Walkup Attic"
-              defaultRefinement={searchState?.walkupAttic}
+              defaultRefinement={searchState?.toggle?.walkupAttic || false}
             />
           </Box>
         </Stack>

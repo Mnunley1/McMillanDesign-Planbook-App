@@ -2,21 +2,28 @@ import { Checkbox } from "@chakra-ui/react";
 import React from "react";
 import { useToggleRefinement } from "react-instantsearch";
 
-function CustomToggleRefinement(props) {
-  const { value, refine } = useToggleRefinement(props);
+function CustomToggleRefinement({ attribute, label, defaultRefinement }) {
+  const { value, refine } = useToggleRefinement({
+    attribute,
+    on: true,
+    off: undefined,
+    defaultRefinement
+  });
+
+  const handleChange = (event) => {
+    event.preventDefault();
+    refine(!value.isRefined);
+  };
 
   return (
-    <>
-      <Checkbox
-        color="white"
-        checked={value.isRefined}
-        onChange={(event) => {
-          refine({ isRefined: !event.target.checked });
-        }}
-      >
-        <span>{props.label}</span>
-      </Checkbox>
-    </>
+    <Checkbox
+      isChecked={value.isRefined}
+      onChange={handleChange}
+      color="white"
+      colorScheme="yellow"
+    >
+      {label}
+    </Checkbox>
   );
 }
 

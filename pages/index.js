@@ -31,31 +31,43 @@ function Home({ router }) {
     stateMapping: {
       stateToRoute(uiState) {
         const indexUiState = uiState.floorPlans || {};
-        const route = {
-          ...indexUiState.refinementList,
-          ...Object.entries(indexUiState.range || {}).reduce(
-            (acc, [key, value]) => ({
-              ...acc,
-              [key]: `${value.min || ""}-${value.max || ""}`,
-            }),
-            {}
-          ),
-          ...indexUiState.menu,
-          ...Object.entries(indexUiState.toggle || {}).reduce(
-            (acc, [key, value]) => ({
-              ...acc,
-              ...(value ? { [key]: "true" } : {}),
-            }),
-            {}
-          ),
-          ...indexUiState.numericMenu,
-        };
+        const route = {};
 
-        // Remove undefined and empty values
+        // Handle refinement lists
+        if (indexUiState.refinementList) {
+          Object.entries(indexUiState.refinementList).forEach(([key, values]) => {
+            if (Array.isArray(values) && values.length > 0) {
+              route[key] = values;
+            }
+          });
+        }
+
+        // Handle range refinements
+        if (indexUiState.range) {
+          Object.entries(indexUiState.range).forEach(([key, value]) => {
+            if (value.min !== undefined || value.max !== undefined) {
+              route[key] = `${value.min || ""}-${value.max || ""}`;
+            }
+          });
+        }
+
+        // Handle numeric menu
+        if (indexUiState.numericMenu) {
+          Object.entries(indexUiState.numericMenu).forEach(([key, value]) => {
+            route[key] = value;
+          });
+        }
+
+        // Handle toggle refinements
+        if (indexUiState.toggle) {
+          Object.entries(indexUiState.toggle).forEach(([key, value]) => {
+            route[key] = value;
+          });
+        }
+
         return Object.fromEntries(
           Object.entries(route).filter(([_, value]) => 
             value !== undefined && 
-            value !== "" && 
             value !== null &&
             !(Array.isArray(value) && value.length === 0)
           )
@@ -65,12 +77,11 @@ function Home({ router }) {
       routeToState(routeState) {
         const refinementList = {};
         const range = {};
-        const menu = {};
         const toggle = {};
         const numericMenu = {};
 
         Object.entries(routeState).forEach(([key, value]) => {
-          if (!value) return; // Skip empty values
+          if (value === undefined) return;
 
           if (typeof value === "string" && value.includes("-")) {
             const [min, max] = value.split("-");
@@ -81,11 +92,11 @@ function Home({ router }) {
           } else if (
             ["numberOfLevels", "planType", "garageOrientation", "primarySuite"].includes(key)
           ) {
-            refinementList[key] = [value];
-          } else if (["bedrooms", "vehicles"].includes(key)) {
+            refinementList[key] = Array.isArray(value) ? value : [value];
+          } else if (["bedrooms", "vehicleSpaces"].includes(key)) {
             numericMenu[key] = value;
           } else if (["basement", "walkupAttic"].includes(key)) {
-            toggle[key] = value === "true";
+            toggle[key] = value === true || value === "true";
           } else if (["price", "size"].includes(key)) {
             numericMenu[key] = value;
           }
@@ -95,7 +106,6 @@ function Home({ router }) {
           floorPlans: {
             refinementList: Object.keys(refinementList).length > 0 ? refinementList : undefined,
             range: Object.keys(range).length > 0 ? range : undefined,
-            menu: Object.keys(menu).length > 0 ? menu : undefined,
             toggle: Object.keys(toggle).length > 0 ? toggle : undefined,
             numericMenu: Object.keys(numericMenu).length > 0 ? numericMenu : undefined,
           },
@@ -103,13 +113,52 @@ function Home({ router }) {
       },
     },
     router: createInstantSearchRouterNext({
-      serverUrl: typeof window !== 'undefined' ? window.location.origin : 'https://your-website.com',
+      serverUrl: typeof window !== "undefined" ? window.location.origin : "https://your-website.com",
       routerOptions: {
         shallow: true,
       },
       singletonRouter: router,
       cleanUrlOnDispose: true,
-      writeDelay: 400, // Add a small delay to prevent rapid URL updates
+      writeDelay: 400,
+      parseURL: ({ qsModule, location }) => {
+        const queryString = location.search || "";
+        const parsed = qsModule.parse(queryString.slice(1), {
+          arrayFormat: "comma",
+          comma: true,
+          parseBooleans: true
+        });
+
+        // Handle arrays and toggle values
+        Object.entries(parsed).forEach(([key, value]) => {
+          if (typeof value === "string") {
+            if (value.includes(",")) {
+              parsed[key] = value.split(",");
+            } else if (["basement", "walkupAttic"].includes(key)) {
+              parsed[key] = value === "true";
+            }
+          }
+        });
+
+        return parsed;
+      },
+      createURL: ({ qsModule, routeState, location }) => {
+        const processedState = Object.fromEntries(
+          Object.entries(routeState).map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return [key, value.join(",")];
+            }
+            return [key, value];
+          })
+        );
+
+        const baseUrl = location.origin + location.pathname;
+        const queryString = qsModule.stringify(processedState, {
+          arrayFormat: "comma",
+          encode: true,
+          skipNulls: true
+        });
+        return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+      }
     }),
   };
 
