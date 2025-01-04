@@ -35,26 +35,41 @@ function Home({ router }) {
 
         // Handle refinement lists
         if (indexUiState.refinementList) {
-          Object.entries(indexUiState.refinementList).forEach(([key, values]) => {
-            if (Array.isArray(values) && values.length > 0) {
-              route[key] = values;
+          Object.entries(indexUiState.refinementList).forEach(
+            ([key, values]) => {
+              if (Array.isArray(values) && values.length > 0) {
+                route[key] = values;
+              }
             }
-          });
-        }
-
-        // Handle range refinements
-        if (indexUiState.range) {
-          Object.entries(indexUiState.range).forEach(([key, value]) => {
-            if (value.min !== undefined || value.max !== undefined) {
-              route[key] = `${value.min || ""}-${value.max || ""}`;
-            }
-          });
+          );
         }
 
         // Handle numeric menu
         if (indexUiState.numericMenu) {
           Object.entries(indexUiState.numericMenu).forEach(([key, value]) => {
-            route[key] = value;
+            if (value) {
+              if (["sqft", "planDepth", "planWidth"].includes(key)) {
+                // Handle both string and object formats
+                if (typeof value === 'object') {
+                  route[key] = JSON.stringify(value);
+                } else if (typeof value === 'string') {
+                  // Check if it's already a JSON string
+                  try {
+                    JSON.parse(value);
+                    route[key] = value;
+                  } catch (e) {
+                    // If not JSON, it might be a range string (e.g. ":4000")
+                    const [start = "", end = ""] = value.split(":");
+                    route[key] = JSON.stringify({
+                      start: start ? Number(start) : undefined,
+                      end: end ? Number(end) : undefined
+                    });
+                  }
+                }
+              } else {
+                route[key] = value;
+              }
+            }
           });
         }
 
@@ -66,54 +81,59 @@ function Home({ router }) {
         }
 
         return Object.fromEntries(
-          Object.entries(route).filter(([_, value]) => 
-            value !== undefined && 
-            value !== null &&
-            !(Array.isArray(value) && value.length === 0)
+          Object.entries(route).filter(
+            ([_, value]) =>
+              value !== undefined &&
+              value !== null &&
+              !(Array.isArray(value) && value.length === 0)
           )
         );
       },
 
       routeToState(routeState) {
         const refinementList = {};
-        const range = {};
-        const toggle = {};
         const numericMenu = {};
+        const toggle = {};
 
         Object.entries(routeState).forEach(([key, value]) => {
           if (value === undefined) return;
 
-          if (typeof value === "string" && value.includes("-")) {
-            const [min, max] = value.split("-");
-            range[key] = {
-              min: min ? Number(min) : undefined,
-              max: max ? Number(max) : undefined,
-            };
-          } else if (
-            ["numberOfLevels", "planType", "garageOrientation", "primarySuite"].includes(key)
-          ) {
-            refinementList[key] = Array.isArray(value) ? value : [value];
+          if (["sqft", "planDepth", "planWidth"].includes(key)) {
+            numericMenu[key] = value;
           } else if (["bedrooms", "vehicleSpaces"].includes(key)) {
             numericMenu[key] = value;
+          } else if (
+            [
+              "numberOfLevels",
+              "planType",
+              "garageOrientation",
+              "primarySuite",
+            ].includes(key)
+          ) {
+            refinementList[key] = Array.isArray(value) ? value : [value];
           } else if (["basement", "walkupAttic"].includes(key)) {
             toggle[key] = value === true || value === "true";
-          } else if (["price", "size"].includes(key)) {
-            numericMenu[key] = value;
           }
         });
 
         return {
           floorPlans: {
-            refinementList: Object.keys(refinementList).length > 0 ? refinementList : undefined,
-            range: Object.keys(range).length > 0 ? range : undefined,
+            refinementList:
+              Object.keys(refinementList).length > 0
+                ? refinementList
+                : undefined,
+            numericMenu:
+              Object.keys(numericMenu).length > 0 ? numericMenu : undefined,
             toggle: Object.keys(toggle).length > 0 ? toggle : undefined,
-            numericMenu: Object.keys(numericMenu).length > 0 ? numericMenu : undefined,
           },
         };
       },
     },
     router: createInstantSearchRouterNext({
-      serverUrl: typeof window !== "undefined" ? window.location.origin : "https://your-website.com",
+      serverUrl:
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "https://your-website.com",
       routerOptions: {
         shallow: true,
       },
@@ -125,7 +145,7 @@ function Home({ router }) {
         const parsed = qsModule.parse(queryString.slice(1), {
           arrayFormat: "comma",
           comma: true,
-          parseBooleans: true
+          parseBooleans: true,
         });
 
         // Handle arrays and toggle values
@@ -155,10 +175,10 @@ function Home({ router }) {
         const queryString = qsModule.stringify(processedState, {
           arrayFormat: "comma",
           encode: true,
-          skipNulls: true
+          skipNulls: true,
         });
         return queryString ? `${baseUrl}?${queryString}` : baseUrl;
-      }
+      },
     }),
   };
 

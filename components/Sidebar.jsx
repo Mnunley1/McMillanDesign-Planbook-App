@@ -60,10 +60,8 @@ export const Sidebar = ({ searchState }) => {
             </Heading>
             <CustomRangeInput
               attribute="sqft"
-              precision={2}
               min={1000}
               max={10000}
-              defaultRefinement={searchState?.sqft}
             />
           </Box>
           <Box>
