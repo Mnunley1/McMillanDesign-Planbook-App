@@ -1,10 +1,6 @@
+import { Box, Input } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
 import { useSearchBox } from "react-instantsearch";
-import { Box, Input, InputGroup, InputRightAddon } from "@chakra-ui/react";
-import { FaSearch } from "react-icons/fa";
-
-import { Highlight } from "react-instantsearch";
-import Autosuggest from "react-autosuggest";
 
 function CustomSearchBox(props) {
   const { query, refine, clear, isSearchStalled } = useSearchBox(props);

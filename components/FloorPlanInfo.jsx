@@ -11,8 +11,7 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import noImage from "../public/no-image.jpg";
 
 export default function FloorPlanInfo({ data }) {
-  const image = data?.planPdf[0]?.url || noImage.src;
-  const file = image.split("/").pop();
+  const image = data?.planPdf[0]?.url;
 
   // Create and configure your Cloudinary instance.
   const cld = new Cloudinary({
@@ -21,40 +20,82 @@ export default function FloorPlanInfo({ data }) {
     },
   });
 
-  // Use the image with public ID, 'front_face'.
-  const myImage = cld.image(file);
+  // Function to get the Cloudinary PDF URL
+  const getPdfUrl = (url) => {
+    if (!url) return null;
 
-  // Apply the transformation.
-  const url = myImage.toURL();
+    // Extract the public ID from the URL
+    const matches = url.match(/\/v\d+\/(.+?)$/);
+    if (!matches || !matches[1]) return url;
 
-  const downloadFile = (fileName = `${data?.planNumber}.pdf`) => {
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/pdf",
-      },
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
+    const publicId = matches[1].replace(/\.[^/.]+$/, ""); // Remove file extension
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
+    // Construct a direct PDF URL
+    return `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/fl_attachment/${publicId}.pdf`;
+  };
 
-        document.body.appendChild(link);
+  const downloadFile = async (fileName = `${data?.planNumber}.pdf`) => {
+    if (!image) {
+      console.error("No PDF URL available");
+      return;
+    }
 
-        link.click();
+    const pdfUrl = getPdfUrl(image);
 
-        link.parentNode.removeChild(link);
+    try {
+      const response = await fetch("/api/download-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: pdfUrl }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      // Check if we received a PDF
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("pdf")) {
+        throw new Error("Received invalid content type");
+      }
+
+      const blob = await response.blob();
+      if (blob.size === 0) {
+        throw new Error("Received empty PDF");
+      }
+
+      const downloadUrl = window.URL.createObjectURL(
+        new Blob([blob], { type: "application/pdf" })
+      );
+
+      // Create download link
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }, 100);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      // You might want to show this error to the user through your UI
+    }
   };
 
   return (
     <Box width="100%" bgColor="#1e1e1e" borderRadius="lg">
       <Stack align="stretch">
         <Image
-          src={data?.planPdf[0].url}
+          src={data?.planPdf[0].url || noImage.src}
           width="100%"
           borderTopRadius="lg"
           alt="plan image"

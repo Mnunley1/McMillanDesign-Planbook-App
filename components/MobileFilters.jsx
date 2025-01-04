@@ -1,48 +1,29 @@
 import {
-  Avatar,
   Box,
   Button,
   ButtonGroup,
-  Flex,
-  HStack,
-  Heading,
-  Icon,
-  IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Stack,
-  StackDivider,
-  Text,
-  useDisclosure,
   CloseButton,
+  Flex,
+  Heading,
+  HStack,
+  Stack,
 } from "@chakra-ui/react";
-import {
-  FiBookmark,
-  FiClock,
-  FiGrid,
-  FiHelpCircle,
-  FiMoreVertical,
-  FiPieChart,
-  FiSearch,
-  FiSettings,
-} from "react-icons/fi";
+import { FiX } from "react-icons/fi";
+import { useClearRefinements } from "react-instantsearch";
 
-import CustomRefinementList from "./CustomRefinementList";
-import CustomRangeInput from "./CustomRangeInput";
-import CustomToggleRefinement from "./CustomToggleRefinement";
-import CustomSearchBox from "./CustomSearchBox";
 import CustomNumericMenu from "./CustomNumericMenu";
-import { useEffect } from "react";
+import CustomRangeInput from "./CustomRangeInput";
+import CustomRefinementList from "./CustomRefinementList";
+import CustomSearchBox from "./CustomSearchBox";
+import CustomToggleRefinement from "./CustomToggleRefinement";
 
 export const MobileFilters = ({ filters, onClick, searchState }) => {
+  const { refine: clearAll } = useClearRefinements();
+
+  const handleReset = () => {
+    clearAll();
+  };
+
   return (
     <Box
       bgColor="#1e1e1e"
@@ -165,15 +146,18 @@ export const MobileFilters = ({ filters, onClick, searchState }) => {
             />
           </Box>
         </Stack>
+        <ButtonGroup width="100%" spacing="6" mt="5">
+          <Button w="full" onClick={onClick}>
+            Close
+          </Button>
+          <Button w="full" colorScheme="yellow" onClick={onClick}>
+            Search
+          </Button>
+          <Button w="full" colorScheme="red" onClick={handleReset}>
+            Reset
+          </Button>
+        </ButtonGroup>
       </Stack>
-      <ButtonGroup width="100%" spacing="6" mt="5">
-        <Button w="full" onClick={onClick}>
-          Close
-        </Button>
-        <Button w="full" colorScheme="yellow" onClick={onClick}>
-          Search
-        </Button>
-      </ButtonGroup>
     </Box>
   );
 };

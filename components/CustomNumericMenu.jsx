@@ -1,23 +1,31 @@
-import { Radio, RadioGroup, Select, Stack, Text } from "@chakra-ui/react";
+import { Radio, RadioGroup, Stack, Text } from "@chakra-ui/react";
 import React from "react";
 import { useNumericMenu } from "react-instantsearch";
 
 function CustomNumericMenu(props) {
-  const { items, refine } = useNumericMenu(props);
+  const { items, refine, createURL } = useNumericMenu(props);
+
+  // Find the currently selected item
+  const selectedItem = items.find((item) => item.isRefined);
+  const currentValue = selectedItem ? selectedItem.value : "";
+
+  const handleChange = (value) => {
+    const item = items.find((item) => item.value === value);
+    if (item) {
+      refine(item.value);
+    }
+  };
 
   return (
-    <RadioGroup>
+    <RadioGroup value={currentValue} onChange={handleChange}>
       <Stack spacing={1} direction="column">
         {items.map((item) => (
           <Radio
             key={item.value}
-            name={item.attribute}
             value={item.value}
+            isChecked={item.isRefined}
+            name={props.attribute}
             colorScheme="yellow"
-            onChange={(event) => {
-              event.preventDefault();
-              refine(item.value);
-            }}
           >
             <Text color="white">{item.label}</Text>
           </Radio>
