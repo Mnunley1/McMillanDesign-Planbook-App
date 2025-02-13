@@ -1,6 +1,6 @@
-import { Button, Center, HStack, VStack } from "@chakra-ui/react";
+import { Button, Center, HStack, Skeleton, VStack } from "@chakra-ui/react";
 import React from "react";
-import { usePagination } from "react-instantsearch";
+import { usePagination, useInstantSearch } from "react-instantsearch";
 
 function CustomPagination(props) {
   const {
@@ -12,10 +12,34 @@ function CustomPagination(props) {
     refine,
     createURL,
   } = usePagination(props);
-  const firstPageIndex = 0;
-  const previousPageIndex = currentRefinement - 1;
-  const nextPageIndex = currentRefinement + 1;
-  const lastPageIndex = nbPages - 1;
+  const { status } = useInstantSearch();
+  const isSearching = status === 'loading' || status === 'stalled';
+
+  const firstPageIndex = 1;
+  const previousPageIndex = currentRefinement;
+  const nextPageIndex = currentRefinement + 2;
+  const lastPageIndex = nbPages;
+
+  if (isSearching) {
+    return (
+      <Center>
+        <HStack spacing={2}>
+          <Skeleton>
+            <Button>First</Button>
+          </Skeleton>
+          <Skeleton>
+            <Button>Previous</Button>
+          </Skeleton>
+          <Skeleton>
+            <Button>Next</Button>
+          </Skeleton>
+          <Skeleton>
+            <Button>Last</Button>
+          </Skeleton>
+        </HStack>
+      </Center>
+    );
+  }
 
   return (
     <Center>
