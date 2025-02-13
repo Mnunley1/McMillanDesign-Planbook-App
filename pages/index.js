@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  SimpleGrid,
-  Spacer,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Spacer } from "@chakra-ui/react";
 import algoliasearch from "algoliasearch/lite";
 import Head from "next/head";
 import { withRouter } from "next/router";
@@ -17,6 +10,7 @@ import CustomPagination from "../components/CustomPagination";
 import CustomSortBy from "../components/CustomSortBy";
 import Layout from "../components/Layout";
 import MobileFilters from "../components/MobileFilters";
+import { ScrollTo } from "../components/ScrollTo";
 import Sidebar from "../components/Sidebar";
 
 const searchClient = algoliasearch(
@@ -32,6 +26,9 @@ function Home({ router }) {
       stateToRoute(uiState) {
         const indexUiState = uiState.floorPlans || {};
         const route = {};
+
+        // Handle pagination (preserve page number)
+        route.page = !indexUiState.page ? 1 : indexUiState.page;
 
         // Handle refinement lists
         if (indexUiState.refinementList) {
@@ -50,9 +47,9 @@ function Home({ router }) {
             if (value) {
               if (["sqft", "planDepth", "planWidth"].includes(key)) {
                 // Handle both string and object formats
-                if (typeof value === 'object') {
+                if (typeof value === "object") {
                   route[key] = JSON.stringify(value);
-                } else if (typeof value === 'string') {
+                } else if (typeof value === "string") {
                   // Check if it's already a JSON string
                   try {
                     JSON.parse(value);
@@ -62,7 +59,7 @@ function Home({ router }) {
                     const [start = "", end = ""] = value.split(":");
                     route[key] = JSON.stringify({
                       start: start ? Number(start) : undefined,
-                      end: end ? Number(end) : undefined
+                      end: end ? Number(end) : undefined,
                     });
                   }
                 }
@@ -80,6 +77,11 @@ function Home({ router }) {
           });
         }
 
+        // Handle search query
+        if (indexUiState.query) {
+          route.q = indexUiState.query;
+        }
+
         return Object.fromEntries(
           Object.entries(route).filter(
             ([_, value]) =>
@@ -94,14 +96,24 @@ function Home({ router }) {
         const refinementList = {};
         const numericMenu = {};
         const toggle = {};
+        const state = {};
+
+        // Handle page number separately to preserve it
+        if (routeState.page) {
+          state.page = Number(routeState.page);
+        }
 
         Object.entries(routeState).forEach(([key, value]) => {
-          if (value === undefined) return;
+          if (value === undefined || key === "page") return;
 
           if (["sqft", "planDepth", "planWidth"].includes(key)) {
-            numericMenu[key] = value;
+            if (!numericMenu[key]) {
+              numericMenu[key] = value;
+            }
           } else if (["bedrooms", "vehicleSpaces"].includes(key)) {
             numericMenu[key] = value;
+          } else if (key === "q") {
+            state.query = value;
           } else if (
             [
               "numberOfLevels",
@@ -118,6 +130,7 @@ function Home({ router }) {
 
         return {
           floorPlans: {
+            ...state,
             refinementList:
               Object.keys(refinementList).length > 0
                 ? refinementList
@@ -130,6 +143,11 @@ function Home({ router }) {
       },
     },
     router: createInstantSearchRouterNext({
+      preservePageOnEmptyQuery: true,
+      windowTitle({ routeState }) {
+        const page = routeState.page || 1;
+        return `Page ${page}`;
+      },
       serverUrl:
         typeof window !== "undefined"
           ? window.location.origin
@@ -249,35 +267,37 @@ function Home({ router }) {
                     { label: "Default", value: "floorPlans" },
                     {
                       label: "Bedrooms (asc)",
-                      value: "bedrooms_asc",
+                      value: "floorPlans_bedrooms_asc",
                     },
                     {
                       label: "Bedrooms (desc)",
-                      value: "bedrooms_desc",
+                      value: "floorPlans_bedrooms_desc",
                     },
                     {
                       label: "Plan Width (asc)",
-                      value: "width_asc",
+                      value: "floorPlans_width_asc",
                     },
                     {
                       label: "Plan Width (desc)",
-                      value: "width_desc",
+                      value: "floorPlans_width_desc",
                     },
                     {
                       label: "Plan Depth (asc)",
-                      value: "depth_asc",
+                      value: "floorPlans_depth_asc",
                     },
                     {
                       label: "Plan Depth (desc)",
-                      value: "depth_desc",
+                      value: "floorPlans_depth_desc",
                     },
                   ]}
                 />
               </HStack>
-              <SimpleGrid columns={[1, 1, 1, 2]} spacing={5}>
+              <ScrollTo>
                 <CustomHits />
-              </SimpleGrid>
-              <CustomPagination padding={2} />
+                <Box mt={4}>
+                  <CustomPagination />
+                </Box>
+              </ScrollTo>
             </Box>
             <MobileFilters
               onClick={hideFilters}
