@@ -2,7 +2,7 @@ import { Box, Button, Flex, HStack, Spacer } from "@chakra-ui/react";
 import algoliasearch from "algoliasearch/lite";
 import Head from "next/head";
 import { withRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InstantSearch, Stats } from "react-instantsearch";
 import { createInstantSearchRouterNext } from "react-instantsearch-router-nextjs";
 import CustomHits from "../components/CustomHits";
@@ -18,8 +18,40 @@ const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 );
 
+// Storage key for search state
+const SEARCH_STATE_STORAGE_KEY = "planbook_search_state";
+
 function Home({ router }) {
   const [showFilters, setShowFilters] = useState(false);
+  const [initialUiState, setInitialUiState] = useState({
+    floorPlans: {
+      refinementList: {},
+      range: {},
+      menu: {},
+      toggle: {},
+      numericMenu: {},
+    },
+  });
+
+  // Load saved search state on initial render
+  useEffect(() => {
+    try {
+      const savedState = sessionStorage.getItem(SEARCH_STATE_STORAGE_KEY);
+      if (savedState) {
+        const { state, timestamp } = JSON.parse(savedState);
+
+        // Only use saved state if it's less than 30 minutes old
+        if (Date.now() - timestamp < 30 * 60 * 1000) {
+          setInitialUiState(state);
+        } else {
+          // Clear expired state
+          sessionStorage.removeItem(SEARCH_STATE_STORAGE_KEY);
+        }
+      }
+    } catch (error) {
+      console.error("Error restoring search state:", error);
+    }
+  }, []);
 
   const routing = {
     stateMapping: {
@@ -48,19 +80,12 @@ function Home({ router }) {
               if (["sqft", "planDepth", "planWidth"].includes(key)) {
                 // Handle both string and object formats
                 if (typeof value === "object") {
-                  route[key] = JSON.stringify(value);
-                } else if (typeof value === "string") {
-                  // Check if it's already a JSON string
+                  route[key] = value;
+                } else {
                   try {
-                    JSON.parse(value);
-                    route[key] = value;
+                    route[key] = JSON.parse(value);
                   } catch (e) {
-                    // If not JSON, it might be a range string (e.g. ":4000")
-                    const [start = "", end = ""] = value.split(":");
-                    route[key] = JSON.stringify({
-                      start: start ? Number(start) : undefined,
-                      end: end ? Number(end) : undefined,
-                    });
+                    route[key] = value;
                   }
                 }
               } else {
@@ -73,22 +98,36 @@ function Home({ router }) {
         // Handle toggle refinements
         if (indexUiState.toggle) {
           Object.entries(indexUiState.toggle).forEach(([key, value]) => {
-            route[key] = value;
+            if (value) {
+              route[key] = value;
+            }
           });
         }
 
-        // Handle search query
+        // Handle query
         if (indexUiState.query) {
           route.q = indexUiState.query;
         }
 
-        return Object.fromEntries(
-          Object.entries(route).filter(
-            ([_, value]) =>
-              value !== undefined &&
-              value !== null &&
-              !(Array.isArray(value) && value.length === 0)
-          )
+        // Save the current state to sessionStorage when navigating away
+        try {
+          sessionStorage.setItem(
+            SEARCH_STATE_STORAGE_KEY,
+            JSON.stringify({
+              state: { floorPlans: indexUiState },
+              timestamp: Date.now(),
+            })
+          );
+        } catch (error) {
+          console.error("Error saving search state:", error);
+        }
+
+        return Object.keys(route).reduce(
+          (acc, key) =>
+            route[key] === undefined || route[key] === "" || route[key] === null
+              ? acc
+              : { ...acc, [key]: route[key] },
+          {}
         );
       },
 
@@ -220,15 +259,7 @@ function Home({ router }) {
         indexName="floorPlans"
         routing={routing}
         stalledSearchDelay={500}
-        initialUiState={{
-          floorPlans: {
-            refinementList: {},
-            range: {},
-            menu: {},
-            toggle: {},
-            numericMenu: {},
-          },
-        }}
+        initialUiState={initialUiState}
       >
         <Layout>
           <Flex overflowX="hidden">
@@ -241,7 +272,7 @@ function Home({ router }) {
               borderRadius="lg"
               display={["none", "none", "block"]}
             >
-              <Sidebar />
+              <Sidebar searchState={router.query} />
             </Box>
             <Box w="100%" h="100%" p={5}>
               <HStack mb="5" color="white">
@@ -303,9 +334,11 @@ function Home({ router }) {
               onClick={hideFilters}
               setDisplay={setShowFilters}
               filters={showFilters}
+              searchState={router.query}
             />
           </Flex>
         </Layout>
+        <ScrollTo />
       </InstantSearch>
     </>
   );

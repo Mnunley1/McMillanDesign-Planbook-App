@@ -7,6 +7,10 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import FloorPlanInfo from "../../components/FloorPlanInfo";
 import Layout from "../../components/Layout";
+
+// Storage key for scroll position
+const SCROLL_POSITION_KEY = "planbook_scroll_position";
+
 export default function Plan() {
   const router = useRouter();
   const [data, setData] = useState();
@@ -15,6 +19,12 @@ export default function Plan() {
     space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
     accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN,
   });
+
+  // Handle back navigation
+  const handleBackClick = () => {
+    // Navigate back to the previous page
+    router.back();
+  };
 
   useEffect(() => {
     if (router.isReady) {
@@ -38,26 +48,26 @@ export default function Plan() {
           <title>McMillan Design - Floor Plan Details</title>
           <meta name="description" content="Floor plan details" />
           <link rel="icon" href="/favicon.ico" />
+          <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossOrigin="anonymous"
+            referrerPolicy="no-referrer"
+          />
         </Head>
         <Box bgColor="#030303">
           <Container maxW="container.xl" mt="10" mb="10">
             <Button
-              variant="link"
-              color="white"
-              mb="5"
               leftIcon={<FaArrowLeft />}
-              onClick={() => {
-                const referrer = document.referrer;
-                if (referrer && referrer.includes(window.location.origin)) {
-                  router.back();
-                } else {
-                  router.back();
-                }
-              }}
+              colorScheme="yellow"
+              variant="outline"
+              mb={5}
+              onClick={handleBackClick}
             >
-              Back To Plans
+              Back to Search Results
             </Button>
-            <FloorPlanInfo data={data} />
+            {data && <FloorPlanInfo data={data} />}
           </Container>
         </Box>
       </Layout>

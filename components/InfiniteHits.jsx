@@ -17,11 +17,14 @@ function InfiniteHits({ hitComponent: HitComponent = FloorPlanCard }) {
   // Save search state when hits change
   useEffect(() => {
     if (!isInitialLoad && hits.length > 0) {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-        hits,
-        uiState: indexUiState,
-        timestamp: Date.now()
-      }));
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          hits,
+          uiState: indexUiState,
+          timestamp: Date.now(),
+        })
+      );
     }
   }, [hits, indexUiState, isInitialLoad]);
 
@@ -29,8 +32,11 @@ function InfiniteHits({ hitComponent: HitComponent = FloorPlanCard }) {
   useEffect(() => {
     const handleRouteChange = (url) => {
       // Save current state and position before navigating away
-      if (url.includes('/plan/')) {
-        sessionStorage.setItem(STORAGE_KEY + '_scroll', window.scrollY.toString());
+      if (url.includes("/plan/")) {
+        sessionStorage.setItem(
+          STORAGE_KEY + "_scroll",
+          window.scrollY.toString()
+        );
       }
     };
 
@@ -40,24 +46,24 @@ function InfiniteHits({ hitComponent: HitComponent = FloorPlanCard }) {
         clearTimeout(restorationTimeout.current);
       }
 
-      const savedPosition = sessionStorage.getItem(STORAGE_KEY + '_scroll');
+      const savedPosition = sessionStorage.getItem(STORAGE_KEY + "_scroll");
       if (savedPosition) {
         restorationTimeout.current = setTimeout(() => {
           window.scrollTo({
             top: parseInt(savedPosition, 10),
-            behavior: 'instant'
+            behavior: "instant",
           });
-          sessionStorage.removeItem(STORAGE_KEY + '_scroll');
+          sessionStorage.removeItem(STORAGE_KEY + "_scroll");
         }, 100);
       }
     };
 
-    router.events.on('routeChangeStart', handleRouteChange);
-    router.events.on('routeChangeComplete', handleRouteComplete);
+    router.events.on("routeChangeStart", handleRouteChange);
+    router.events.on("routeChangeComplete", handleRouteComplete);
 
     return () => {
-      router.events.off('routeChangeStart', handleRouteChange);
-      router.events.off('routeChangeComplete', handleRouteComplete);
+      router.events.off("routeChangeStart", handleRouteChange);
+      router.events.off("routeChangeComplete", handleRouteComplete);
       if (restorationTimeout.current) {
         clearTimeout(restorationTimeout.current);
       }
@@ -107,11 +113,7 @@ function InfiniteHits({ hitComponent: HitComponent = FloorPlanCard }) {
     <div data-testid="hits-container">
       <SimpleGrid columns={[1, 1, 1, 2]} spacing={5}>
         {hits.map((hit) => (
-          <HitComponent 
-            key={hit.objectID} 
-            hit={hit} 
-            sendEvent={sendEvent}
-          />
+          <HitComponent key={hit.objectID} hit={hit} sendEvent={sendEvent} />
         ))}
       </SimpleGrid>
       <Center ref={sentinel} p={4}>
