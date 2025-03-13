@@ -1,4 +1,5 @@
 import { Box, Button, Flex, HStack, Spacer } from "@chakra-ui/react";
+import { useUser } from "@clerk/nextjs";
 import algoliasearch from "algoliasearch/lite";
 import Head from "next/head";
 import { withRouter } from "next/router";
@@ -22,6 +23,7 @@ const searchClient = algoliasearch(
 const SEARCH_STATE_STORAGE_KEY = "planbook_search_state";
 
 function Home({ router }) {
+  const { isLoaded, isSignedIn, user } = useUser();
   const [showFilters, setShowFilters] = useState(false);
   const [initialUiState, setInitialUiState] = useState({
     floorPlans: {
@@ -32,6 +34,25 @@ function Home({ router }) {
       numericMenu: {},
     },
   });
+
+  // Log user data and handle authentication state
+  useEffect(() => {
+    if (isLoaded) {
+      console.log('Authentication Status:', {
+        isSignedIn,
+        isLoaded,
+        userId: user?.id,
+        userEmail: user?.emailAddresses?.[0]?.emailAddress,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        role: user?.publicMetadata?.role,
+        metadata: user?.publicMetadata,
+      });
+
+      // Log full user object for debugging
+      console.log('Full User Object:', user);
+    }
+  }, [isLoaded, isSignedIn, user]);
 
   // Load saved search state on initial render
   useEffect(() => {
@@ -52,6 +73,75 @@ function Home({ router }) {
       console.error("Error restoring search state:", error);
     }
   }, []);
+
+  // Handle loading state
+  if (!isLoaded) {
+    return (
+      <Box minH="100vh" bg="#1e1e1e">
+        <Layout>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="60vh"
+            color="white"
+            p={8}
+          >
+            <Box
+              p={8}
+              bg="#2d2d2d"
+              borderRadius="md"
+              borderColor="#3d3d3d"
+              borderWidth="1px"
+              textAlign="center"
+            >
+              <Box fontSize="lg">Loading...</Box>
+            </Box>
+          </Flex>
+        </Layout>
+      </Box>
+    );
+  }
+
+  // Handle authentication
+  if (!isSignedIn) {
+    return (
+      <Box minH="100vh" bg="#1e1e1e">
+        <Layout>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="60vh"
+            color="white"
+            p={8}
+          >
+            <Box
+              p={8}
+              bg="#2d2d2d"
+              borderRadius="md"
+              borderColor="#3d3d3d"
+              borderWidth="1px"
+              textAlign="center"
+            >
+              <Box fontSize="lg" mb={4}>
+                Please sign in to access this page
+              </Box>
+              <Button
+                as="a"
+                href={`/sign-in?redirect_url=${router.asPath}`}
+                bg="#4299e1"
+                color="white"
+                _hover={{ bg: "#3182ce" }}
+              >
+                Sign In
+              </Button>
+            </Box>
+          </Flex>
+        </Layout>
+      </Box>
+    );
+  }
 
   const routing = {
     stateMapping: {

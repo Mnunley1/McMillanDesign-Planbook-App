@@ -403,7 +403,7 @@ export const Sidebar = ({ searchState }) => {
               width="full"
               colorScheme="yellow"
               onClick={handleReset}
-              display={activeFiltersCount > 0 ? "block" : "none"}
+              disabled={activeFiltersCount === 0}
             >
               Clear All Filters
             </Button>

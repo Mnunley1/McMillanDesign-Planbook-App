@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ClerkProvider {...pageProps} afterSignOutUrl="/sign-in">
+    <ClerkProvider {...pageProps}>
       <QueryClientProvider client={queryClient}>
         <ChakraProvider theme={theme}>
           <CSSReset />
