@@ -6,24 +6,24 @@ import { withRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { InstantSearch, Stats } from "react-instantsearch";
 import { createInstantSearchRouterNext } from "react-instantsearch-router-nextjs";
-import CustomHits from "../components/CustomHits";
-import CustomPagination from "../components/CustomPagination";
-import CustomSortBy from "../components/CustomSortBy";
-import Layout from "../components/Layout";
-import MobileFilters from "../components/MobileFilters";
-import { ScrollTo } from "../components/ScrollTo";
-import Sidebar from "../components/Sidebar";
+import CustomHits from "../../components/CustomHits";
+import CustomPagination from "../../components/CustomPagination";
+import CustomSortBy from "../../components/CustomSortBy";
+import Layout from "../../components/Layout";
+import MobileFilters from "../../components/MobileFilters";
+import { ScrollTo } from "../../components/ScrollTo";
+import Sidebar from "../../components/Sidebar";
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 );
 
-// Storage key for search state
-const SEARCH_STATE_STORAGE_KEY = "planbook_search_state";
+// Storage key for admin search state
+const SEARCH_STATE_STORAGE_KEY = "planbook_admin_search_state";
 
-function Home({ router }) {
-  const { isLoaded, isSignedIn, user } = useUser();
+function AdminDashboard({ router }) {
+  const { user, isLoaded, isSignedIn } = useUser();
   const [showFilters, setShowFilters] = useState(false);
   const [initialUiState, setInitialUiState] = useState({
     floorPlans: {
@@ -34,25 +34,6 @@ function Home({ router }) {
       numericMenu: {},
     },
   });
-
-  // Log user data and handle authentication state
-  useEffect(() => {
-    if (isLoaded) {
-      console.log('Authentication Status:', {
-        isSignedIn,
-        isLoaded,
-        userId: user?.id,
-        userEmail: user?.emailAddresses?.[0]?.emailAddress,
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        role: user?.publicMetadata?.role,
-        metadata: user?.publicMetadata,
-      });
-
-      // Log full user object for debugging
-      console.log('Full User Object:', user);
-    }
-  }, [isLoaded, isSignedIn, user]);
 
   // Load saved search state on initial render
   useEffect(() => {
@@ -73,75 +54,6 @@ function Home({ router }) {
       console.error("Error restoring search state:", error);
     }
   }, []);
-
-  // Handle loading state
-  if (!isLoaded) {
-    return (
-      <Box minH="100vh" bg="#1e1e1e">
-        <Layout>
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            minH="60vh"
-            color="white"
-            p={8}
-          >
-            <Box
-              p={8}
-              bg="#2d2d2d"
-              borderRadius="md"
-              borderColor="#3d3d3d"
-              borderWidth="1px"
-              textAlign="center"
-            >
-              <Box fontSize="lg">Loading...</Box>
-            </Box>
-          </Flex>
-        </Layout>
-      </Box>
-    );
-  }
-
-  // Handle authentication
-  if (!isSignedIn) {
-    return (
-      <Box minH="100vh" bg="#1e1e1e">
-        <Layout>
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            minH="60vh"
-            color="white"
-            p={8}
-          >
-            <Box
-              p={8}
-              bg="#2d2d2d"
-              borderRadius="md"
-              borderColor="#3d3d3d"
-              borderWidth="1px"
-              textAlign="center"
-            >
-              <Box fontSize="lg" mb={4}>
-                Please sign in to access this page
-              </Box>
-              <Button
-                as="a"
-                href={`/sign-in?redirect_url=${router.asPath}`}
-                bg="#4299e1"
-                color="white"
-                _hover={{ bg: "#3182ce" }}
-              >
-                Sign In
-              </Button>
-            </Box>
-          </Flex>
-        </Layout>
-      </Box>
-    );
-  }
 
   const routing = {
     stateMapping: {
@@ -275,7 +187,7 @@ function Home({ router }) {
       preservePageOnEmptyQuery: true,
       windowTitle({ routeState }) {
         const page = routeState.page || 1;
-        return `Page ${page}`;
+        return `Admin Dashboard - Page ${page}`;
       },
       serverUrl:
         typeof window !== "undefined"
@@ -287,99 +199,83 @@ function Home({ router }) {
       singletonRouter: router,
       cleanUrlOnDispose: true,
       writeDelay: 400,
-      parseURL: ({ qsModule, location }) => {
-        const queryString = location.search || "";
-        const parsed = qsModule.parse(queryString.slice(1), {
-          arrayFormat: "comma",
-          comma: true,
-          parseBooleans: true,
-        });
-
-        // Handle arrays and toggle values
-        Object.entries(parsed).forEach(([key, value]) => {
-          if (typeof value === "string") {
-            if (value.includes(",")) {
-              parsed[key] = value.split(",");
-            } else if (["basement", "walkupAttic"].includes(key)) {
-              parsed[key] = value === "true";
-            }
-          }
-        });
-
-        return parsed;
-      },
-      createURL: ({ qsModule, routeState, location }) => {
-        const processedState = Object.fromEntries(
-          Object.entries(routeState).map(([key, value]) => {
-            if (Array.isArray(value)) {
-              return [key, value.join(",")];
-            }
-            return [key, value];
-          })
-        );
-
-        const baseUrl = location.origin + location.pathname;
-        const queryString = qsModule.stringify(processedState, {
-          arrayFormat: "comma",
-          encode: true,
-          skipNulls: true,
-        });
-        return queryString ? `${baseUrl}?${queryString}` : baseUrl;
-      },
     }),
   };
 
-  const displayFilters = () => {
-    setShowFilters(true);
-  };
+  // Role-based access control
+  if (!isLoaded || !isSignedIn) {
+    return (
+      <Layout>
+        <Box p={8} textAlign="center">
+          {!isLoaded
+            ? "Loading..."
+            : "Please sign in to access the admin dashboard."}
+        </Box>
+      </Layout>
+    );
+  }
 
-  const hideFilters = () => {
-    setShowFilters(false);
-  };
+  // Check if user has admin role
+  if (!user?.publicMetadata?.role || user.publicMetadata.role !== "admin") {
+    return (
+      <Layout>
+        <Box p={8} textAlign="center">
+          You do not have permission to access this page.
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
-    <>
+    <Layout>
       <Head>
-        <title>Create Next App</title>
-        <meta name="description" content="Generated by create next app" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>McMillan Design - Floor Plans Admin</title>
       </Head>
+
       <InstantSearch
         searchClient={searchClient}
-        indexName="floorPlans"
+        indexName="allPlans"
         routing={routing}
-        stalledSearchDelay={500}
         initialUiState={initialUiState}
       >
-        <Layout>
-          <Flex overflowX="hidden">
-            <Box
-              bgColor="#1e1e1e"
-              minWidth="30%"
-              height="100%"
-              p="5"
-              m="5"
-              borderRadius="lg"
-              display={["none", "none", "block"]}
-            >
-              <Sidebar searchState={router.query} />
-            </Box>
-            <Box w="100%" h="100%" p={5}>
-              <HStack mb="5" color="white">
-                <Stats
-                  translations={{
-                    stats(nbHits) {
-                      return `${nbHits} results found`;
-                    },
-                  }}
-                />
+        <Box
+          display="flex"
+          flexDirection={{ base: "column", md: "row" }}
+          minH="calc(100vh - 4rem)"
+          p={{ base: 4, md: 8 }}
+          gap={8}
+        >
+          <Sidebar display={{ base: "none", md: "block" }} />
+          <MobileFilters
+            isOpen={showFilters}
+            onClose={() => setShowFilters(false)}
+          />
 
-                <Spacer />
+          <Box flex="1">
+            <Flex
+              mb={4}
+              direction={{ base: "column", sm: "row" }}
+              align={{ sm: "center" }}
+              justify="space-between"
+              gap={2}
+              color="white"
+            >
+              <Stats
+                translations={{
+                  stats(nbHits) {
+                    return `${nbHits.toLocaleString()} floor plans found`;
+                  },
+                }}
+              />
+
+              <Spacer display={{ base: "none", sm: "block" }} />
+
+              <HStack spacing={4}>
                 <Button
-                  onClick={displayFilters}
-                  display={["block", "block", "none"]}
-                  variant="link"
-                  colorScheme="yellow"
+                  display={{ base: "inline-flex", md: "none" }}
+                  onClick={() => setShowFilters(true)}
+                  colorScheme="blue"
+                  variant="outline"
                 >
                   Filters
                 </Button>
@@ -388,50 +284,43 @@ function Home({ router }) {
                     { label: "Default", value: "floorPlans" },
                     {
                       label: "Bedrooms (asc)",
-                      value: "floorPlans_bedrooms_asc",
+                      value: "allPlans_bedrooms_asc",
                     },
                     {
                       label: "Bedrooms (desc)",
-                      value: "floorPlans_bedrooms_desc",
+                      value: "allPlans_bedrooms_desc",
                     },
                     {
                       label: "Plan Width (asc)",
-                      value: "floorPlans_width_asc",
+                      value: "allPlans_width_asc",
                     },
                     {
                       label: "Plan Width (desc)",
-                      value: "floorPlans_width_desc",
+                      value: "allPlans_width_desc",
                     },
                     {
                       label: "Plan Depth (asc)",
-                      value: "floorPlans_depth_asc",
+                      value: "allPlans_depth_asc",
                     },
                     {
                       label: "Plan Depth (desc)",
-                      value: "floorPlans_depth_desc",
+                      value: "allPlans_depth_desc",
                     },
                   ]}
                 />
               </HStack>
-              <ScrollTo>
-                <CustomHits />
-                <Box mt={4}>
-                  <CustomPagination />
-                </Box>
-              </ScrollTo>
+            </Flex>
+
+            <CustomHits minH="calc(100vh - 16rem)" />
+            <ScrollTo />
+            <Box mt={8} mb={4}>
+              <CustomPagination />
             </Box>
-            <MobileFilters
-              onClick={hideFilters}
-              setDisplay={setShowFilters}
-              filters={showFilters}
-              searchState={router.query}
-            />
-          </Flex>
-        </Layout>
-        <ScrollTo />
+          </Box>
+        </Box>
       </InstantSearch>
-    </>
+    </Layout>
   );
 }
 
-export default withRouter(Home);
+export default withRouter(AdminDashboard);

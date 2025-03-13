@@ -6,12 +6,67 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  useStyleConfig,
 } from "@chakra-ui/react";
+import { Global } from "@emotion/react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import noImage from "../public/no-image.jpg";
 
 export default function FloorPlanInfo({ data }) {
   const image = data?.planPdf[0]?.url;
+
+  const printImage = () => {
+    if (!image) {
+      console.error("No image URL available");
+      return;
+    }
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${data?.planNumber || 'Floor Plan'}</title>
+          <style>
+            body {
+              margin: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+              background: white;
+            }
+            img {
+              max-width: 100%;
+              max-height: 100vh;
+              width: auto;
+              height: auto;
+              object-fit: contain;
+            }
+            @media print {
+              @page {
+                size: auto;
+                margin: 0.5cm;
+              }
+              body {
+                margin: 0;
+              }
+              img {
+                max-height: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <img 
+            src="${image}" 
+            alt="Floor Plan ${data?.planNumber || ''}" 
+            onload="setTimeout(() => { window.print(); window.close(); }, 500);">
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
   // Create and configure your Cloudinary instance.
   const cld = new Cloudinary({
@@ -92,7 +147,9 @@ export default function FloorPlanInfo({ data }) {
   };
 
   return (
-    <Box width="100%" bgColor="#1e1e1e" borderRadius="lg">
+    <>
+
+      <Box width="100%" bgColor="#1e1e1e" borderRadius="lg">
       <Stack align="stretch">
         <Image
           src={data?.planPdf[0].url || noImage.src}
@@ -100,75 +157,124 @@ export default function FloorPlanInfo({ data }) {
           borderTopRadius="lg"
           alt="plan image"
         />
-        <Stack p="8">
-          <SimpleGrid columns={2} spacing={5}>
+        <Stack p="8" spacing={8}>
+          <Box borderBottom="2px solid" borderColor="whiteAlpha.200" pb={6}>
+            <Heading size="lg" color="white" mb={2}>
+              {data?.planNumber || 'Floor Plan Details'}
+            </Heading>
+            <Text color="whiteAlpha.800" fontSize="lg">
+              {data?.planType}
+            </Text>
+          </Box>
+
+          <SimpleGrid 
+            columns={{ base: 1, sm: 2, lg: 3 }} 
+            spacing={8}
+            sx={{
+              '& > div': {
+                position: 'relative',
+                p: 4,
+                bg: 'whiteAlpha.100',
+                borderRadius: 'md',
+                transition: 'all 0.2s',
+                _hover: {
+                  bg: 'whiteAlpha.200',
+                  transform: 'translateY(-2px)',
+                }
+              }
+            }}
+          >
             <Box>
-              <Heading size="md" color="#E4E6EB">
-                Plan Type
-              </Heading>
-              <Text color="#E4E6EB">{data?.planType}</Text>
-            </Box>
-            <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Bedrooms
               </Heading>
-              <Text color="#E4E6EB">{data?.bedrooms}</Text>
+              <Text color="white" fontSize="xl" fontWeight="bold">{data?.bedrooms}</Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Plan Width
               </Heading>
-              <Text color="#E4E6EB">{data?.overallWidth}</Text>
+              <Text color="white" fontSize="xl" fontWeight="bold">{data?.overallWidth}</Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Plan Depth
               </Heading>
-              <Text color="#E4E6EB">{data?.overallDepth}</Text>
+              <Text color="white" fontSize="xl" fontWeight="bold">{data?.overallDepth}</Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Number of Levels
               </Heading>
-              <Text color="#E4E6EB">{data?.numberOfLevels}</Text>
+              <Text color="white" fontSize="xl" fontWeight="bold">{data?.numberOfLevels}</Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Garage Layout
               </Heading>
-              <Text color="#E4E6EB">{data?.garageOrientation}</Text>
+              <Text color="white" fontSize="xl" fontWeight="bold">{data?.garageOrientation}</Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 First Floor Master
               </Heading>
-              <Text color="#E4E6EB">
+              <Text color="white" fontSize="xl" fontWeight="bold">
                 {data?.firstFloorMaster === true ? "Yes" : "No"}
               </Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Basement
               </Heading>
-              <Text color="#E4E6EB">
+              <Text color="white" fontSize="xl" fontWeight="bold">
                 {data?.basement === true ? "Yes" : "No"}
               </Text>
             </Box>
+
             <Box>
-              <Heading size="md" color="#E4E6EB">
+              <Heading size="sm" color="whiteAlpha.600" mb={2} textTransform="uppercase" letterSpacing="wide">
                 Walkup Attic
               </Heading>
-              <Text color="#E4E6EB">
+              <Text color="white" fontSize="xl" fontWeight="bold">
                 {data?.walkupAttic === true ? "Yes" : "No"}
               </Text>
             </Box>
           </SimpleGrid>
 
-          <Button mt={6} onClick={() => downloadFile()}>
-            Download .pdf file
-          </Button>
+          <Stack 
+            direction={{ base: 'column', sm: 'row' }} 
+            spacing={4} 
+            mt={8} 
+            pt={6} 
+            borderTop="2px solid" 
+            borderColor="whiteAlpha.200"
+            className="no-print">
+            <Button
+              onClick={() => downloadFile()}
+              leftIcon={<Box as="span" className="fas fa-download" />}
+              colorScheme="blue"
+              flex={{ base: '1', sm: 'initial' }}
+            >
+              Download PDF
+            </Button>
+            <Button
+              onClick={printImage}
+              leftIcon={<Box as="span" className="fas fa-print" />}
+              colorScheme="gray"
+              flex={{ base: '1', sm: 'initial' }}
+            >
+              Print Plan
+            </Button>
+          </Stack>
         </Stack>
       </Stack>
     </Box>
+    </>
   );
 }

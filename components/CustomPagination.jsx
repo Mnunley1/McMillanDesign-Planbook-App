@@ -1,6 +1,6 @@
 import { Button, Center, HStack, Skeleton, VStack } from "@chakra-ui/react";
 import React from "react";
-import { usePagination, useInstantSearch } from "react-instantsearch";
+import { useInstantSearch, usePagination } from "react-instantsearch";
 
 function CustomPagination(props) {
   const {
@@ -13,7 +13,7 @@ function CustomPagination(props) {
     createURL,
   } = usePagination(props);
   const { status } = useInstantSearch();
-  const isSearching = status === 'loading' || status === 'stalled';
+  const isSearching = status === "loading" || status === "stalled";
 
   const firstPageIndex = 1;
   const previousPageIndex = currentRefinement;

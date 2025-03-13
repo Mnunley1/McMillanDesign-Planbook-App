@@ -1,21 +1,33 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { authMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/"]);
+interface UserMetadata {
+  role?: string;
+}
 
-export default clerkMiddleware(async (auth, req) => {
-  const { userId, redirectToSignIn } = await auth();
+export default authMiddleware({
+  publicRoutes: ["/sign-in(.*)", "/sign-up(.*)"],
+  afterAuth(auth, req) {
+    // Handle unauthenticated users
+    if (!auth.userId && !auth.isPublicRoute) {
+      const signInUrl = new URL("/sign-in", req.url);
+      signInUrl.searchParams.set("redirect_url", req.url);
+      return NextResponse.redirect(signInUrl);
+    }
 
-  if (!userId && isProtectedRoute(req)) {
-    // Add custom logic to run before redirecting
-    return redirectToSignIn();
-  }
+    // Handle admin routes
+    if (req.nextUrl.pathname.startsWith("/admin")) {
+      const metadata = auth.sessionClaims?.metadata as UserMetadata;
+      if (!auth.userId || metadata?.role !== "admin") {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
+
+    return NextResponse.next();
+  },
 });
 
+// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
