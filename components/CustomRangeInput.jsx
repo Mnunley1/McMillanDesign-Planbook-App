@@ -209,11 +209,8 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
   const handleInputChange = (field, value) => {
     let numValue = value === "" ? "" : Number(value);
 
-    // Validate input
+    // Validate input only for max value
     if (numValue !== "" && !isNaN(numValue)) {
-      if (field === "from" && numValue < min) numValue = min;
-      if (field === "from" && to !== "" && numValue > Number(to))
-        numValue = Number(to);
       if (field === "to" && numValue > max) numValue = max;
       if (field === "to" && from !== "" && numValue < Number(from))
         numValue = Number(from);
