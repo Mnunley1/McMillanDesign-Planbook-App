@@ -2,17 +2,14 @@ import {
   Box,
   Button,
   HStack,
+  IconButton,
   Input,
   InputGroup,
   InputLeftAddon,
-  RangeSlider,
-  RangeSliderFilledTrack,
-  RangeSliderThumb,
-  RangeSliderTrack,
   Stack,
-  Tooltip,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useState } from "react";
+import { FiX } from "react-icons/fi";
 import { useInstantSearch, useNumericMenu } from "react-instantsearch";
 
 function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
@@ -29,14 +26,14 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
     to: "",
   });
 
-  const [sliderValues, setSliderValues] = useState([min, max]);
-  const [showTooltip, setShowTooltip] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Parse range values from various formats
   const parseRangeValues = useCallback(
     (currentValue) => {
-      if (!currentValue) return { from: "", to: "" };
+      if (!currentValue || currentValue === "" || currentValue === "{}") {
+        return { from: "", to: "" };
+      }
 
       try {
         let start, end;
@@ -104,11 +101,6 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
         to: newTo,
       });
 
-      setSliderValues([
-        newFrom ? Number(newFrom) : min,
-        newTo ? Number(newTo) : max,
-      ]);
-
       saveToSessionStorage(newFrom, newTo);
       setIsInitialized(true);
       return;
@@ -130,11 +122,6 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
             from: savedFrom,
             to: savedTo,
           });
-
-          setSliderValues([
-            savedFrom ? Number(savedFrom) : min,
-            savedTo ? Number(savedTo) : max,
-          ]);
 
           // Apply the saved refinement
           if (savedFrom || savedTo) {
@@ -158,7 +145,6 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
 
     // Finally, use default values or clear (lowest priority)
     setRange({ from: "", to: "" });
-    setSliderValues([min, max]);
     setIsInitialized(true);
   }, [
     indexUiState.numericMenu,
@@ -181,7 +167,6 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
     if (!currentValue) {
       // Clear inputs when there's no value (including after reset)
       setRange({ from: "", to: "" });
-      setSliderValues([min, max]);
       saveToSessionStorage("", "");
       return;
     }
@@ -192,11 +177,6 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
       from: newFrom,
       to: newTo,
     });
-
-    setSliderValues([
-      newFrom ? Number(newFrom) : min,
-      newTo ? Number(newTo) : max,
-    ]);
 
     saveToSessionStorage(newFrom, newTo);
   }, [
@@ -226,27 +206,6 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
     }
   };
 
-  const handleSliderChange = (newValues) => {
-    setSliderValues(newValues);
-  };
-
-  const handleSliderChangeEnd = (newValues) => {
-    const newFrom = newValues[0].toString();
-    const newTo = newValues[1].toString();
-
-    setRange({
-      from: newFrom,
-      to: newTo,
-    });
-
-    const value = JSON.stringify({
-      start: Number(newFrom),
-      end: Number(newTo),
-    });
-    refine(value);
-    saveToSessionStorage(newFrom, newTo);
-  };
-
   const handleInputChange = (field, value) => {
     let numValue = value === "" ? "" : Number(value);
 
@@ -268,46 +227,19 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
     setRange(newRange);
   };
 
+  const handleClear = () => {
+    // Clear the local state
+    setRange({ from: "", to: "" });
+
+    // Clear the refinement by setting it to an empty object
+    refine(JSON.stringify({}));
+
+    // Clear the session storage
+    saveToSessionStorage("", "");
+  };
+
   return (
     <Stack spacing={4}>
-      <RangeSlider
-        aria-label={["min", "max"]}
-        defaultValue={[min, max]}
-        min={min}
-        max={max}
-        step={10}
-        value={sliderValues}
-        onChange={handleSliderChange}
-        onChangeEnd={handleSliderChangeEnd}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        colorScheme="yellow"
-      >
-        <RangeSliderTrack bg="gray.600">
-          <RangeSliderFilledTrack />
-        </RangeSliderTrack>
-        <Tooltip
-          hasArrow
-          bg="yellow.500"
-          color="white"
-          placement="top"
-          isOpen={showTooltip}
-          label={sliderValues[0]}
-        >
-          <RangeSliderThumb boxSize={6} index={0} />
-        </Tooltip>
-        <Tooltip
-          hasArrow
-          bg="yellow.500"
-          color="white"
-          placement="top"
-          isOpen={showTooltip}
-          label={sliderValues[1]}
-        >
-          <RangeSliderThumb boxSize={6} index={1} />
-        </Tooltip>
-      </RangeSlider>
-
       <form onSubmit={handleSubmit}>
         <HStack spacing={2} align="center">
           <InputGroup size="sm">
@@ -374,6 +306,17 @@ function CustomRangeInput({ attribute, min, max, defaultRefinement }) {
           >
             Apply
           </Button>
+
+          {(from !== "" || to !== "") && (
+            <IconButton
+              aria-label="Clear range"
+              icon={<FiX />}
+              size="sm"
+              colorScheme="red"
+              variant="ghost"
+              onClick={handleClear}
+            />
+          )}
         </HStack>
       </form>
     </Stack>

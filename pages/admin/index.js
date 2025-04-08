@@ -19,14 +19,14 @@ const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 );
 
-// Storage key for admin search state
-const SEARCH_STATE_STORAGE_KEY = "planbook_admin_search_state";
+// Storage key for search state
+const SEARCH_STATE_STORAGE_KEY = "allPlans_search_state";
 
-function AdminDashboard({ router }) {
-  const { user, isLoaded, isSignedIn } = useUser();
+function Master({ router }) {
+  const { isLoaded, isSignedIn, user } = useUser();
   const [showFilters, setShowFilters] = useState(false);
   const [initialUiState, setInitialUiState] = useState({
-    floorPlans: {
+    allPlans: {
       refinementList: {},
       range: {},
       menu: {},
@@ -55,10 +55,79 @@ function AdminDashboard({ router }) {
     }
   }, []);
 
+  // Handle loading state
+  if (!isLoaded) {
+    return (
+      <Box minH="100vh" bg="#1e1e1e">
+        <Layout>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="60vh"
+            color="white"
+            p={8}
+          >
+            <Box
+              p={8}
+              bg="#2d2d2d"
+              borderRadius="md"
+              borderColor="#3d3d3d"
+              borderWidth="1px"
+              textAlign="center"
+            >
+              <Box fontSize="lg">Loading...</Box>
+            </Box>
+          </Flex>
+        </Layout>
+      </Box>
+    );
+  }
+
+  // Handle authentication
+  if (!isSignedIn) {
+    return (
+      <Box minH="100vh" bg="#1e1e1e">
+        <Layout>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="60vh"
+            color="white"
+            p={8}
+          >
+            <Box
+              p={8}
+              bg="#2d2d2d"
+              borderRadius="md"
+              borderColor="#3d3d3d"
+              borderWidth="1px"
+              textAlign="center"
+            >
+              <Box fontSize="lg" mb={4}>
+                Please sign in to access this page
+              </Box>
+              <Button
+                as="a"
+                href={`/sign-in?redirect_url=${router.asPath}`}
+                bg="#4299e1"
+                color="white"
+                _hover={{ bg: "#3182ce" }}
+              >
+                Sign In
+              </Button>
+            </Box>
+          </Flex>
+        </Layout>
+      </Box>
+    );
+  }
+
   const routing = {
     stateMapping: {
       stateToRoute(uiState) {
-        const indexUiState = uiState.floorPlans || {};
+        const indexUiState = uiState.allPlans || {};
         const route = {};
 
         // Handle pagination (preserve page number)
@@ -116,7 +185,7 @@ function AdminDashboard({ router }) {
           sessionStorage.setItem(
             SEARCH_STATE_STORAGE_KEY,
             JSON.stringify({
-              state: { floorPlans: indexUiState },
+              state: { allPlans: indexUiState },
               timestamp: Date.now(),
             })
           );
@@ -170,7 +239,7 @@ function AdminDashboard({ router }) {
         });
 
         return {
-          floorPlans: {
+          allPlans: {
             ...state,
             refinementList:
               Object.keys(refinementList).length > 0
@@ -187,7 +256,7 @@ function AdminDashboard({ router }) {
       preservePageOnEmptyQuery: true,
       windowTitle({ routeState }) {
         const page = routeState.page || 1;
-        return `Admin Dashboard - Page ${page}`;
+        return `Page ${page}`;
       },
       serverUrl:
         typeof window !== "undefined"
@@ -199,89 +268,105 @@ function AdminDashboard({ router }) {
       singletonRouter: router,
       cleanUrlOnDispose: true,
       writeDelay: 400,
+      parseURL: ({ qsModule, location }) => {
+        const queryString = location.search || "";
+        const parsed = qsModule.parse(queryString.slice(1), {
+          arrayFormat: "comma",
+          comma: true,
+          parseBooleans: true,
+        });
+
+        // Handle arrays and toggle values
+        Object.entries(parsed).forEach(([key, value]) => {
+          if (typeof value === "string") {
+            if (value.includes(",")) {
+              parsed[key] = value.split(",");
+            } else if (["basement", "walkupAttic"].includes(key)) {
+              parsed[key] = value === "true";
+            }
+          }
+        });
+
+        return parsed;
+      },
+      createURL: ({ qsModule, routeState, location }) => {
+        const processedState = Object.fromEntries(
+          Object.entries(routeState).map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return [key, value.join(",")];
+            }
+            return [key, value];
+          })
+        );
+
+        const baseUrl = location.origin + location.pathname;
+        const queryString = qsModule.stringify(processedState, {
+          arrayFormat: "comma",
+          encode: true,
+          skipNulls: true,
+        });
+        return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+      },
     }),
   };
 
-  // Role-based access control
-  if (!isLoaded || !isSignedIn) {
-    return (
-      <Layout>
-        <Box p={8} textAlign="center">
-          {!isLoaded
-            ? "Loading..."
-            : "Please sign in to access the admin dashboard."}
-        </Box>
-      </Layout>
-    );
-  }
+  const displayFilters = () => {
+    setShowFilters(true);
+  };
 
-  // Check if user has admin role
-  if (!user?.publicMetadata?.role || user.publicMetadata.role !== "admin") {
-    return (
-      <Layout>
-        <Box p={8} textAlign="center">
-          You do not have permission to access this page.
-        </Box>
-      </Layout>
-    );
-  }
+  const hideFilters = () => {
+    setShowFilters(false);
+  };
 
   return (
-    <Layout>
+    <>
       <Head>
-        <title>McMillan Design - Floor Plans Admin</title>
+        <title>Create Next App</title>
+        <meta name="description" content="Generated by create next app" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <InstantSearch
         searchClient={searchClient}
         indexName="allPlans"
         routing={routing}
+        stalledSearchDelay={500}
         initialUiState={initialUiState}
       >
-        <Box
-          display="flex"
-          flexDirection={{ base: "column", md: "row" }}
-          minH="calc(100vh - 4rem)"
-          p={{ base: 4, md: 8 }}
-          gap={8}
-        >
-          <Sidebar display={{ base: "none", md: "block" }} />
-          <MobileFilters
-            isOpen={showFilters}
-            onClose={() => setShowFilters(false)}
-          />
-
-          <Box flex="1">
-            <Flex
-              mb={4}
-              direction={{ base: "column", sm: "row" }}
-              align={{ sm: "center" }}
-              justify="space-between"
-              gap={2}
-              color="white"
+        <Layout>
+          <Flex overflowX="hidden">
+            <Box
+              bgColor="#1e1e1e"
+              minWidth="30%"
+              height="100%"
+              p="5"
+              m="5"
+              borderRadius="lg"
+              display={["none", "none", "block"]}
             >
-              <Stats
-                translations={{
-                  stats(nbHits) {
-                    return `${nbHits.toLocaleString()} floor plans found`;
-                  },
-                }}
-              />
+              <Sidebar searchState={router.query} />
+            </Box>
+            <Box w="100%" h="100%" p={5}>
+              <HStack mb="5" color="white">
+                <Stats
+                  translations={{
+                    stats(nbHits) {
+                      return `${nbHits} results found`;
+                    },
+                  }}
+                />
 
-              <Spacer display={{ base: "none", sm: "block" }} />
-
-              <HStack spacing={4}>
+                <Spacer />
                 <Button
-                  display={{ base: "inline-flex", md: "none" }}
-                  onClick={() => setShowFilters(true)}
-                  colorScheme="blue"
-                  variant="outline"
+                  onClick={displayFilters}
+                  display={["block", "block", "none"]}
+                  variant="link"
+                  colorScheme="yellow"
                 >
                   Filters
                 </Button>
                 <CustomSortBy
                   items={[
-                    { label: "Default", value: "floorPlans" },
+                    { label: "Default", value: "allPlans" },
                     {
                       label: "Bedrooms (asc)",
                       value: "allPlans_bedrooms_asc",
@@ -309,18 +394,25 @@ function AdminDashboard({ router }) {
                   ]}
                 />
               </HStack>
-            </Flex>
-
-            <CustomHits minH="calc(100vh - 16rem)" />
-            <ScrollTo />
-            <Box mt={8} mb={4}>
-              <CustomPagination />
+              <ScrollTo>
+                <CustomHits />
+                <Box mt={4}>
+                  <CustomPagination />
+                </Box>
+              </ScrollTo>
             </Box>
-          </Box>
-        </Box>
+            <MobileFilters
+              onClick={hideFilters}
+              setDisplay={setShowFilters}
+              filters={showFilters}
+              searchState={router.query}
+            />
+          </Flex>
+        </Layout>
+        <ScrollTo />
       </InstantSearch>
-    </Layout>
+    </>
   );
 }
 
-export default withRouter(AdminDashboard);
+export default withRouter(Master);

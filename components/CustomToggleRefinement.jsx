@@ -7,13 +7,8 @@ function CustomToggleRefinement({ attribute, label, defaultRefinement }) {
     attribute,
     on: true,
     off: undefined,
-    defaultRefinement,
+    defaultRefinement: defaultRefinement || false,
   });
-
-  const handleChange = (event) => {
-    event.preventDefault();
-    refine(!value.isRefined);
-  };
 
   return (
     <Flex
@@ -27,7 +22,9 @@ function CustomToggleRefinement({ attribute, label, defaultRefinement }) {
       <HStack spacing={3}>
         <Checkbox
           isChecked={value.isRefined}
-          onChange={handleChange}
+          onChange={(event) => {
+            refine({ isRefined: !event.target.checked });
+          }}
           color="white"
           colorScheme="yellow"
           size="md"

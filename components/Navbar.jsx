@@ -31,7 +31,7 @@ function Navbar() {
                   color="white"
                   _hover={{ color: "yellow.400" }}
                 >
-                  Home
+                  Public
                 </Link>
                 <Link
                   as={NextLink}
@@ -39,7 +39,7 @@ function Navbar() {
                   color="white"
                   _hover={{ color: "yellow.400" }}
                 >
-                  Admin
+                  Master View
                 </Link>
               </>
             )}

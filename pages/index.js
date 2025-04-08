@@ -35,25 +35,6 @@ function Home({ router }) {
     },
   });
 
-  // Log user data and handle authentication state
-  useEffect(() => {
-    if (isLoaded) {
-      console.log('Authentication Status:', {
-        isSignedIn,
-        isLoaded,
-        userId: user?.id,
-        userEmail: user?.emailAddresses?.[0]?.emailAddress,
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        role: user?.publicMetadata?.role,
-        metadata: user?.publicMetadata,
-      });
-
-      // Log full user object for debugging
-      console.log('Full User Object:', user);
-    }
-  }, [isLoaded, isSignedIn, user]);
-
   // Load saved search state on initial render
   useEffect(() => {
     try {
