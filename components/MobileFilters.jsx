@@ -8,20 +8,13 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
   Heading,
   HStack,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FiFilter, FiSearch, FiSliders } from "react-icons/fi";
+import { FiFilter, FiSearch } from "react-icons/fi";
 import { useClearRefinements, useInstantSearch } from "react-instantsearch";
 
 import CustomRangeInput from "./CustomRangeInput";
@@ -93,327 +86,333 @@ export const MobileFilters = ({ filters, onClick, searchState }) => {
   const borderColor = "gray.700";
 
   return (
-    <Drawer isOpen={filters} placement="right" onClose={onClick} size="full">
-      <DrawerOverlay />
-      <DrawerContent bg={bgColor}>
-        <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
-          <HStack justify="space-between">
-            <HStack>
-              <FiFilter color="var(--chakra-colors-yellow-400)" />
-              <Heading size="md" color="white">
-                Filters
-              </Heading>
-              {activeFiltersCount > 0 && (
-                <Badge colorScheme="yellow" borderRadius="full" ml={2}>
-                  {activeFiltersCount}
-                </Badge>
-              )}
-            </HStack>
-            <DrawerCloseButton position="static" color="white" />
-          </HStack>
-          <Text fontSize="sm" color="gray.400" mt={1}>
-            Refine your search with the options below
-          </Text>
-        </DrawerHeader>
-
-        <DrawerBody px={0}>
-          <Box px={4} py={4}>
-            <CustomSearchBox defaultRefinement={searchState?.q || ""} />
-          </Box>
-
-          <Accordion allowMultiple defaultIndex={[0]} allowToggle>
-            <AccordionItem border="none">
-              <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
-                <HStack flex="1" textAlign="left">
-                  <FiSliders color="var(--chakra-colors-yellow-400)" />
-                  <Heading size="sm" color="white">
-                    Basic Filters
-                  </Heading>
-                </HStack>
-                <AccordionIcon color="gray.400" />
-              </AccordionButton>
-              <AccordionPanel pb={4} px={4}>
-                <Stack spacing={6}>
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Bedrooms
-                    </Heading>
-                    <PersistentNumericMenu
-                      attribute="bedrooms"
-                      items={[
-                        { label: "All", value: "" },
-                        { label: "1+", start: 1 },
-                        { label: "2+", start: 2 },
-                        { label: "3+", start: 3 },
-                        { label: "4+", start: 4 },
-                        { label: "5+", start: 5 },
-                      ]}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Square Footage
-                    </Heading>
-                    <CustomRangeInput
-                      attribute="sqft"
-                      min={1000}
-                      max={10000}
-                      defaultRefinement={searchState?.sqft}
-                    />
-                  </Box>
-
-                  <HStack spacing={4} align="flex-start">
-                    <Box flex="1">
-                      <Heading
-                        size="xs"
-                        mb="3"
-                        color="gray.300"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                      >
-                        Basement
-                      </Heading>
-                      <CustomToggleRefinement
-                        attribute="basement"
-                        label="Has Basement"
-                        defaultRefinement={
-                          searchState?.basement === "true" ||
-                          searchState?.basement === true
-                        }
-                      />
-                    </Box>
-                    <Box flex="1">
-                      <Heading
-                        size="xs"
-                        mb="3"
-                        color="gray.300"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                      >
-                        Attic
-                      </Heading>
-                      <CustomToggleRefinement
-                        attribute="walkupAttic"
-                        label="Walkup Attic"
-                        defaultRefinement={
-                          searchState?.walkupAttic === "true" ||
-                          searchState?.walkupAttic === true
-                        }
-                      />
-                    </Box>
-                  </HStack>
-                </Stack>
-              </AccordionPanel>
-            </AccordionItem>
-
-            <AccordionItem border="none">
-              <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
-                <HStack flex="1" textAlign="left">
-                  <FiSliders color="var(--chakra-colors-yellow-400)" />
-                  <Heading size="sm" color="white">
-                    Dimensions
-                  </Heading>
-                </HStack>
-                <AccordionIcon color="gray.400" />
-              </AccordionButton>
-              <AccordionPanel pb={4} px={4}>
-                <Stack spacing={6}>
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Plan Depth (ft.)
-                    </Heading>
-                    <CustomRangeInput
-                      attribute="planDepth"
-                      precision={2}
-                      min={10}
-                      max={100}
-                      defaultRefinement={searchState?.planDepth}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Plan Width (ft.)
-                    </Heading>
-                    <CustomRangeInput
-                      attribute="planWidth"
-                      precision={2}
-                      min={10}
-                      max={200}
-                      defaultRefinement={searchState?.planWidth}
-                    />
-                  </Box>
-                </Stack>
-              </AccordionPanel>
-            </AccordionItem>
-
-            <AccordionItem border="none">
-              <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
-                <HStack flex="1" textAlign="left">
-                  <FiSliders color="var(--chakra-colors-yellow-400)" />
-                  <Heading size="sm" color="white">
-                    Plan Details
-                  </Heading>
-                </HStack>
-                <AccordionIcon color="gray.400" />
-              </AccordionButton>
-              <AccordionPanel pb={4} px={4}>
-                <Stack spacing={6}>
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Plan Type
-                    </Heading>
-                    <CustomRefinementList
-                      attribute="planType"
-                      defaultRefinement={searchState?.planType}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Number of Levels
-                    </Heading>
-                    <CustomRefinementList
-                      attribute="numberOfLevels"
-                      defaultRefinement={searchState?.numberOfLevels}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Primary Suite
-                    </Heading>
-                    <CustomRefinementList
-                      attribute="primarySuite"
-                      defaultRefinement={searchState?.primarySuite}
-                    />
-                  </Box>
-                </Stack>
-              </AccordionPanel>
-            </AccordionItem>
-
-            <AccordionItem border="none">
-              <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
-                <HStack flex="1" textAlign="left">
-                  <FiSliders color="var(--chakra-colors-yellow-400)" />
-                  <Heading size="sm" color="white">
-                    Garage
-                  </Heading>
-                </HStack>
-                <AccordionIcon color="gray.400" />
-              </AccordionButton>
-              <AccordionPanel pb={4} px={4}>
-                <Stack spacing={6}>
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Garage Orientation
-                    </Heading>
-                    <CustomRefinementList
-                      attribute="garageOrientation"
-                      defaultRefinement={searchState?.garageOrientation}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Heading
-                      size="xs"
-                      mb="3"
-                      color="gray.300"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Vehicle Spaces
-                    </Heading>
-                    <PersistentNumericMenu
-                      attribute="vehicleSpaces"
-                      items={[
-                        { label: "All", value: "" },
-                        { label: "1+", start: 1 },
-                        { label: "2+", start: 2 },
-                        { label: "3+", start: 3 },
-                        { label: "4+", start: 4 },
-                      ]}
-                    />
-                  </Box>
-                </Stack>
-              </AccordionPanel>
-            </AccordionItem>
-          </Accordion>
-        </DrawerBody>
-
-        <DrawerFooter borderTopWidth="1px" borderColor={borderColor}>
-          <ButtonGroup width="100%" spacing={3}>
+    <Box
+      position="fixed"
+      top={0}
+      right={0}
+      bottom={0}
+      width="100%"
+      bg={bgColor}
+      zIndex={1400}
+      display={filters ? "block" : "none"}
+      overflowY="auto"
+    >
+      <Box p={4} borderBottomWidth="1px" borderColor={borderColor}>
+        <HStack justify="space-between">
+          <HStack>
+            <FiFilter color="white" />
+            <Heading size="md" color="white">
+              Filters
+            </Heading>
             {activeFiltersCount > 0 && (
-              <Button
-                colorScheme="red"
-                variant="outline"
-                onClick={handleReset}
-                flex="1"
-              >
-                Reset All
-              </Button>
+              <Badge colorScheme="yellow" borderRadius="full" ml={2}>
+                {activeFiltersCount}
+              </Badge>
             )}
+          </HStack>
+          <Button
+            variant="ghost"
+            color="white"
+            onClick={onClick}
+            _hover={{ bg: "whiteAlpha.200" }}
+          >
+            <FiSearch size={20} />
+          </Button>
+        </HStack>
+        <Text fontSize="sm" color="gray.400" mt={1}>
+          Refine your search with the options below
+        </Text>
+      </Box>
+
+      <Box px={4} py={4}>
+        <CustomSearchBox defaultRefinement={searchState?.q || ""} />
+      </Box>
+
+      <Accordion allowMultiple defaultIndex={[0]} allowToggle>
+        <AccordionItem border="none">
+          <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
+            <HStack flex="1" textAlign="left">
+              <FiFilter color="white" />
+              <Heading size="sm" color="white">
+                Basic Filters
+              </Heading>
+            </HStack>
+            <AccordionIcon color="gray.400" />
+          </AccordionButton>
+          <AccordionPanel pb={4} px={4}>
+            <Stack spacing={6}>
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Bedrooms
+                </Heading>
+                <PersistentNumericMenu
+                  attribute="bedrooms"
+                  items={[
+                    { label: "All", value: "" },
+                    { label: "1+", start: 1 },
+                    { label: "2+", start: 2 },
+                    { label: "3+", start: 3 },
+                    { label: "4+", start: 4 },
+                    { label: "5+", start: 5 },
+                  ]}
+                />
+              </Box>
+
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Square Footage
+                </Heading>
+                <CustomRangeInput
+                  attribute="sqft"
+                  min={1000}
+                  max={10000}
+                  defaultRefinement={searchState?.sqft}
+                />
+              </Box>
+
+              <HStack spacing={4} align="flex-start">
+                <Box flex="1">
+                  <Heading
+                    size="xs"
+                    mb="3"
+                    color="gray.300"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    Basement
+                  </Heading>
+                  <CustomToggleRefinement
+                    attribute="basement"
+                    label="Has Basement"
+                    defaultRefinement={false}
+                  />
+                </Box>
+                <Box flex="1">
+                  <Heading
+                    size="xs"
+                    mb="3"
+                    color="gray.300"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    Attic
+                  </Heading>
+                  <CustomToggleRefinement
+                    attribute="walkupAttic"
+                    label="Walkup Attic"
+                    defaultRefinement={false}
+                  />
+                </Box>
+              </HStack>
+            </Stack>
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem border="none">
+          <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
+            <HStack flex="1" textAlign="left">
+              <FiFilter color="white" />
+              <Heading size="sm" color="white">
+                Dimensions
+              </Heading>
+            </HStack>
+            <AccordionIcon color="gray.400" />
+          </AccordionButton>
+          <AccordionPanel pb={4} px={4}>
+            <Stack spacing={6}>
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Plan Depth (ft.)
+                </Heading>
+                <CustomRangeInput
+                  attribute="planDepth"
+                  precision={2}
+                  min={10}
+                  max={100}
+                  defaultRefinement={searchState?.planDepth}
+                />
+              </Box>
+
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Plan Width (ft.)
+                </Heading>
+                <CustomRangeInput
+                  attribute="planWidth"
+                  precision={2}
+                  min={10}
+                  max={200}
+                  defaultRefinement={searchState?.planWidth}
+                />
+              </Box>
+            </Stack>
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem border="none">
+          <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
+            <HStack flex="1" textAlign="left">
+              <FiFilter color="white" />
+              <Heading size="sm" color="white">
+                Plan Details
+              </Heading>
+            </HStack>
+            <AccordionIcon color="gray.400" />
+          </AccordionButton>
+          <AccordionPanel pb={4} px={4}>
+            <Stack spacing={6}>
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Plan Type
+                </Heading>
+                <CustomRefinementList
+                  attribute="planType"
+                  defaultRefinement={searchState?.planType}
+                />
+              </Box>
+
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Number of Levels
+                </Heading>
+                <CustomRefinementList
+                  attribute="numberOfLevels"
+                  defaultRefinement={searchState?.numberOfLevels}
+                />
+              </Box>
+
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Primary Suite
+                </Heading>
+                <CustomRefinementList
+                  attribute="primarySuite"
+                  defaultRefinement={searchState?.primarySuite}
+                />
+              </Box>
+            </Stack>
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem border="none">
+          <AccordionButton py={3} px={4} _hover={{ bg: "whiteAlpha.100" }}>
+            <HStack flex="1" textAlign="left">
+              <FiFilter color="white" />
+              <Heading size="sm" color="white">
+                Garage
+              </Heading>
+            </HStack>
+            <AccordionIcon color="gray.400" />
+          </AccordionButton>
+          <AccordionPanel pb={4} px={4}>
+            <Stack spacing={6}>
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Garage Orientation
+                </Heading>
+                <CustomRefinementList
+                  attribute="garageOrientation"
+                  defaultRefinement={searchState?.garageOrientation}
+                />
+              </Box>
+
+              <Box>
+                <Heading
+                  size="xs"
+                  mb="3"
+                  color="gray.300"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Vehicle Spaces
+                </Heading>
+                <PersistentNumericMenu
+                  attribute="vehicleSpaces"
+                  items={[
+                    { label: "All", value: "" },
+                    { label: "1+", start: 1 },
+                    { label: "2+", start: 2 },
+                    { label: "3+", start: 3 },
+                    { label: "4+", start: 4 },
+                  ]}
+                />
+              </Box>
+            </Stack>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
+
+      <Box p={4} borderTopWidth="1px" borderColor={borderColor}>
+        <ButtonGroup width="100%" spacing={3}>
+          {activeFiltersCount > 0 && (
             <Button
-              colorScheme="yellow"
-              onClick={onClick}
+              colorScheme="red"
+              variant="outline"
+              onClick={handleReset}
               flex="1"
-              leftIcon={<FiSearch />}
             >
-              Apply Filters
+              Reset All
             </Button>
-          </ButtonGroup>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          )}
+          <Button
+            colorScheme="yellow"
+            onClick={onClick}
+            flex="1"
+            leftIcon={<FiSearch />}
+          >
+            Apply Filters
+          </Button>
+        </ButtonGroup>
+      </Box>
+    </Box>
   );
 };
 

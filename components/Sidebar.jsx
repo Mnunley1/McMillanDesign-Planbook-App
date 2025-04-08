@@ -13,7 +13,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { FiFilter, FiSliders, FiX } from "react-icons/fi";
+import { FiFilter, FiX } from "react-icons/fi";
 
 import { useEffect, useState } from "react";
 import { useClearRefinements, useInstantSearch } from "react-instantsearch";
@@ -86,13 +86,7 @@ export const Sidebar = ({ searchState }) => {
   const borderColor = "gray.700";
 
   return (
-    <Flex
-      as="section"
-      minH="100%"
-      display={["none", "none", "block"]}
-      position="sticky"
-      top="20px"
-    >
+    <Flex as="section" minH="100%" position="sticky" top="20px">
       <Box
         width="100%"
         bg={bgColor}
@@ -101,6 +95,7 @@ export const Sidebar = ({ searchState }) => {
         boxShadow="lg"
         border="1px solid"
         borderColor={borderColor}
+        display={["none", "none", "block"]}
       >
         <Stack width="100%" justifyContent="space-between" spacing={0}>
           <Box p={5} borderBottom="1px solid" borderColor={borderColor}>
@@ -141,7 +136,7 @@ export const Sidebar = ({ searchState }) => {
             <AccordionItem border="none">
               <AccordionButton py={3} px={5} _hover={{ bg: "whiteAlpha.100" }}>
                 <HStack flex="1" textAlign="left">
-                  <FiSliders color={accentColor} />
+                  <FiFilter color={accentColor} />
                   <Heading size="sm" color="white">
                     Basic Filters
                   </Heading>
@@ -231,7 +226,7 @@ export const Sidebar = ({ searchState }) => {
             <AccordionItem border="none">
               <AccordionButton py={3} px={5} _hover={{ bg: "whiteAlpha.100" }}>
                 <HStack flex="1" textAlign="left">
-                  <FiSliders color={accentColor} />
+                  <FiFilter color={accentColor} />
                   <Heading size="sm" color="white">
                     Dimensions
                   </Heading>
@@ -284,7 +279,7 @@ export const Sidebar = ({ searchState }) => {
             <AccordionItem border="none">
               <AccordionButton py={3} px={5} _hover={{ bg: "whiteAlpha.100" }}>
                 <HStack flex="1" textAlign="left">
-                  <FiSliders color={accentColor} />
+                  <FiFilter color={accentColor} />
                   <Heading size="sm" color="white">
                     Plan Details
                   </Heading>
@@ -347,7 +342,7 @@ export const Sidebar = ({ searchState }) => {
             <AccordionItem border="none">
               <AccordionButton py={3} px={5} _hover={{ bg: "whiteAlpha.100" }}>
                 <HStack flex="1" textAlign="left">
-                  <FiSliders color={accentColor} />
+                  <FiFilter color={accentColor} />
                   <Heading size="sm" color="white">
                     Garage
                   </Heading>
