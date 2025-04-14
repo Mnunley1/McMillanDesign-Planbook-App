@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import FloorPlanInfo from "../../components/FloorPlanInfo";
 import Layout from "../../components/Layout";
+import { downloadFile, printImage } from "../../utils/planUtils";
 
 // Storage key for scroll position
 const SCROLL_POSITION_KEY = "planbook_scroll_position";
@@ -24,113 +25,6 @@ export default function Plan() {
   const handleBackClick = () => {
     // Navigate back to the previous page
     router.back();
-  };
-
-  const printImage = () => {
-    if (!data?.planPdf?.[0]?.url) {
-      console.error("No image URL available");
-      return;
-    }
-
-    // Create a new window for printing
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>${data?.planNumber || "Floor Plan"}</title>
-          <style>
-            body {
-              margin: 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              min-height: 100vh;
-              background: white;
-            }
-            img {
-              max-width: 100%;
-              max-height: 100vh;
-              width: auto;
-              height: auto;
-              object-fit: contain;
-            }
-            @media print {
-              @page {
-                size: auto;
-                margin: 0.5cm;
-              }
-              body {
-                margin: 0;
-              }
-              img {
-                max-height: none;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <img 
-            src="${data.planPdf[0].url}" 
-            alt="Floor Plan ${data?.planNumber || ""}" 
-            onload="setTimeout(() => { window.print(); window.close(); }, 500);">
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  };
-
-  const downloadFile = async (fileName = `${data?.planNumber}.pdf`) => {
-    if (!data?.planPdf?.[0]?.url) {
-      console.error("No PDF URL available");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/download-pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: data.planPdf[0].url }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      // Check if we received a PDF
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("pdf")) {
-        throw new Error("Received invalid content type");
-      }
-
-      const blob = await response.blob();
-      if (blob.size === 0) {
-        throw new Error("Received empty PDF");
-      }
-
-      const downloadUrl = window.URL.createObjectURL(
-        new Blob([blob], { type: "application/pdf" })
-      );
-
-      // Create download link
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(downloadUrl);
-      }, 100);
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-    }
   };
 
   useEffect(() => {
@@ -176,14 +70,21 @@ export default function Plan() {
               </Button>
               <Spacer />
               <Button
-                onClick={() => downloadFile()}
+                onClick={() =>
+                  downloadFile(
+                    data?.planPdf?.[0]?.url,
+                    `${data?.planNumber}.pdf`
+                  )
+                }
                 leftIcon={<Box as="span" className="fas fa-download" />}
                 colorScheme="blue"
               >
                 Download PDF
               </Button>
               <Button
-                onClick={printImage}
+                onClick={() =>
+                  printImage(data?.planPdf?.[0]?.url, data?.planNumber)
+                }
                 leftIcon={<Box as="span" className="fas fa-print" />}
                 colorScheme="gray"
               >

@@ -13,13 +13,12 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { FiFilter, FiX } from "react-icons/fi";
-
 import { useEffect, useState } from "react";
+import { FiFilter } from "react-icons/fi";
 import { useClearRefinements, useInstantSearch } from "react-instantsearch";
+import CustomPlanSearchBox from "./CustomPlanSearchBox";
 import CustomRangeInput from "./CustomRangeInput";
 import CustomRefinementList from "./CustomRefinementList";
-import CustomSearchBox from "./CustomSearchBox";
 import CustomToggleRefinement from "./CustomToggleRefinement";
 import PersistentNumericMenu from "./PersistentNumericMenu";
 
@@ -71,7 +70,8 @@ export const Sidebar = ({ searchState }) => {
           key.startsWith("persistent_") ||
           key.startsWith("bedroom_filter_") ||
           key.startsWith("numeric_menu_") ||
-          key.startsWith("stable_menu_")
+          key.startsWith("stable_menu_") ||
+          key.startsWith("plan_search_")
         ) {
           localStorage.removeItem(key);
         }
@@ -111,17 +111,6 @@ export const Sidebar = ({ searchState }) => {
                   </Badge>
                 )}
               </HStack>
-              <Button
-                leftIcon={<FiX />}
-                variant="outline"
-                size="sm"
-                color="white"
-                borderColor={borderColor}
-                _hover={{ bg: "whiteAlpha.200", borderColor: accentColor }}
-                onClick={handleReset}
-              >
-                Reset All
-              </Button>
             </HStack>
             <Text fontSize="sm" color="gray.400">
               Refine your search with the options below
@@ -129,7 +118,9 @@ export const Sidebar = ({ searchState }) => {
           </Box>
 
           <Box p={5}>
-            <CustomSearchBox defaultRefinement={searchState?.query || ""} />
+            <CustomPlanSearchBox
+              defaultRefinement={searchState?.planNumber || ""}
+            />
           </Box>
 
           <Accordion allowMultiple defaultIndex={[0, 1]} allowToggle>
