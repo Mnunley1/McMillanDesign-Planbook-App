@@ -1,4 +1,4 @@
-import {
+/* import {
   Box,
   HStack,
   IconButton,
@@ -21,18 +21,26 @@ function CustomSearchBox(props) {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef(null);
 
-  // Update local state when query changes from outside
+  // Only update inputValue when query changes from outside (not from user input)
   useEffect(() => {
-    setInputValue(query);
+    if (query !== inputValue) {
+      setInputValue(query);
+    }
   }, [query]);
 
-  function setQuery(newQuery) {
-    setInputValue(newQuery);
-    refine(newQuery);
+  function handleInputChange(event) {
+    const newValue = event.currentTarget.value;
+    // Update input immediately
+    setInputValue(newValue);
+    // Refine search after input is updated
+    requestAnimationFrame(() => {
+      refine(newValue);
+    });
   }
 
   function handleClear() {
-    setQuery("");
+    setInputValue("");
+    refine("");
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -108,9 +116,7 @@ function CustomSearchBox(props) {
             maxLength={512}
             type="search"
             value={inputValue}
-            onChange={(event) => {
-              setQuery(event.currentTarget.value);
-            }}
+            onChange={handleInputChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             fontSize="md"
@@ -160,4 +166,4 @@ function CustomSearchBox(props) {
   );
 }
 
-export default CustomSearchBox;
+export default CustomSearchBox; */

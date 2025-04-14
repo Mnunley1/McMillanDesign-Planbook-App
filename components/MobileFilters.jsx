@@ -16,10 +16,9 @@ import {
 import { useEffect, useState } from "react";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import { useClearRefinements, useInstantSearch } from "react-instantsearch";
-
+import CustomPlanSearchBox from "./CustomPlanSearchBox";
 import CustomRangeInput from "./CustomRangeInput";
 import CustomRefinementList from "./CustomRefinementList";
-import CustomSearchBox from "./CustomSearchBox";
 import CustomToggleRefinement from "./CustomToggleRefinement";
 import PersistentNumericMenu from "./PersistentNumericMenu";
 
@@ -125,7 +124,7 @@ export const MobileFilters = ({ filters, onClick, searchState }) => {
       </Box>
 
       <Box px={4} py={4}>
-        <CustomSearchBox defaultRefinement={searchState?.q || ""} />
+        <CustomPlanSearchBox defaultRefinement={searchState?.planType || ""} />
       </Box>
 
       <Accordion allowMultiple defaultIndex={[0]} allowToggle>
