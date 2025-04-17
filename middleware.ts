@@ -29,5 +29,10 @@ export default authMiddleware({
 
 // See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: [
+    "/((?!.+\\.[\\w]+$|_next).*)",
+    "/",
+    "/(api|trpc)(.*)",
+    "/admin(.*)",
+  ],
 };
