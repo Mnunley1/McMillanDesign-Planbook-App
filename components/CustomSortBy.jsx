@@ -1,16 +1,10 @@
 import {
   Button,
-  Select,
   Menu,
   MenuButton,
-  MenuList,
-  MenuItem,
   MenuItemOption,
-  MenuGroup,
+  MenuList,
   MenuOptionGroup,
-  MenuIcon,
-  MenuCommand,
-  MenuDivider,
 } from "@chakra-ui/react";
 import { useSortBy } from "react-instantsearch";
 

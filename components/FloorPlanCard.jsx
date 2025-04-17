@@ -13,7 +13,7 @@ import React from "react";
 function FloorPlanCard({ hit, sendEvent }) {
   const handleClick = () => {
     if (sendEvent) {
-      sendEvent('click', hit, 'Product Clicked');
+      sendEvent("click", hit, "Product Clicked");
     }
   };
 

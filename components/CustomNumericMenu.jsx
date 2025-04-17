@@ -1,4 +1,12 @@
-import { Radio, RadioGroup, Stack, Text } from "@chakra-ui/react";
+import {
+  Badge,
+  Flex,
+  HStack,
+  Radio,
+  RadioGroup,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import React from "react";
 import { useNumericMenu } from "react-instantsearch";
 
@@ -18,17 +26,39 @@ function CustomNumericMenu(props) {
 
   return (
     <RadioGroup value={currentValue} onChange={handleChange}>
-      <Stack spacing={1} direction="column">
+      <Stack spacing={2} direction="column">
         {items.map((item) => (
-          <Radio
+          <Flex
             key={item.value}
-            value={item.value}
-            isChecked={item.isRefined}
-            name={props.attribute}
-            colorScheme="yellow"
+            p={1}
+            borderRadius="md"
+            _hover={{ bg: "whiteAlpha.100" }}
+            transition="background 0.2s"
+            align="center"
           >
-            <Text color="white">{item.label}</Text>
-          </Radio>
+            <Radio
+              value={item.value}
+              isChecked={item.isRefined}
+              name={props.attribute}
+              colorScheme="yellow"
+              size="md"
+            >
+              <HStack spacing={2}>
+                <Text
+                  color="white"
+                  fontSize="sm"
+                  fontWeight={item.isRefined ? "medium" : "normal"}
+                >
+                  {item.label}
+                </Text>
+                {item.isRefined && (
+                  <Badge colorScheme="yellow" variant="solid" fontSize="xs">
+                    Selected
+                  </Badge>
+                )}
+              </HStack>
+            </Radio>
+          </Flex>
         ))}
       </Stack>
     </RadioGroup>

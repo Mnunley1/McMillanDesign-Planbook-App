@@ -6,13 +6,13 @@ import { withRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { InstantSearch, Stats } from "react-instantsearch";
 import { createInstantSearchRouterNext } from "react-instantsearch-router-nextjs";
-import CustomHits from "../components/CustomHits";
-import CustomPagination from "../components/CustomPagination";
-import CustomSortBy from "../components/CustomSortBy";
-import Layout from "../components/Layout";
-import MobileFilters from "../components/MobileFilters";
-import { ScrollTo } from "../components/ScrollTo";
-import Sidebar from "../components/Sidebar";
+import CustomHits from "../../components/CustomHits";
+import CustomPagination from "../../components/CustomPagination";
+import CustomSortBy from "../../components/CustomSortBy";
+import Layout from "../../components/Layout";
+import MobileFilters from "../../components/MobileFilters";
+import { ScrollTo } from "../../components/ScrollTo";
+import Sidebar from "../../components/Sidebar";
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
@@ -20,13 +20,13 @@ const searchClient = algoliasearch(
 );
 
 // Storage key for search state
-const SEARCH_STATE_STORAGE_KEY = "planbook_search_state";
+const SEARCH_STATE_STORAGE_KEY = "allPlans_search_state";
 
-function Home({ router }) {
+function Master({ router }) {
   const { isLoaded, isSignedIn, user } = useUser();
   const [showFilters, setShowFilters] = useState(false);
   const [initialUiState, setInitialUiState] = useState({
-    floorPlans: {
+    allPlans: {
       refinementList: {},
       range: {},
       menu: {},
@@ -127,7 +127,7 @@ function Home({ router }) {
   const routing = {
     stateMapping: {
       stateToRoute(uiState) {
-        const indexUiState = uiState.floorPlans || {};
+        const indexUiState = uiState.allPlans || {};
         const route = {};
 
         // Handle pagination (preserve page number)
@@ -185,7 +185,7 @@ function Home({ router }) {
           sessionStorage.setItem(
             SEARCH_STATE_STORAGE_KEY,
             JSON.stringify({
-              state: { floorPlans: indexUiState },
+              state: { allPlans: indexUiState },
               timestamp: Date.now(),
             })
           );
@@ -239,7 +239,7 @@ function Home({ router }) {
         });
 
         return {
-          floorPlans: {
+          allPlans: {
             ...state,
             refinementList:
               Object.keys(refinementList).length > 0
@@ -327,7 +327,7 @@ function Home({ router }) {
       </Head>
       <InstantSearch
         searchClient={searchClient}
-        indexName="floorPlans"
+        indexName="allPlans"
         routing={routing}
         stalledSearchDelay={500}
         initialUiState={initialUiState}
@@ -366,30 +366,30 @@ function Home({ router }) {
                 </Button>
                 <CustomSortBy
                   items={[
-                    { label: "Default", value: "floorPlans" },
+                    { label: "Default", value: "allPlans" },
                     {
                       label: "Bedrooms (asc)",
-                      value: "floorPlans_bedrooms_asc",
+                      value: "allPlans_bedrooms_asc",
                     },
                     {
                       label: "Bedrooms (desc)",
-                      value: "floorPlans_bedrooms_desc",
+                      value: "allPlans_bedrooms_desc",
                     },
                     {
                       label: "Plan Width (asc)",
-                      value: "floorPlans_width_asc",
+                      value: "allPlans_width_asc",
                     },
                     {
                       label: "Plan Width (desc)",
-                      value: "floorPlans_width_desc",
+                      value: "allPlans_width_desc",
                     },
                     {
                       label: "Plan Depth (asc)",
-                      value: "floorPlans_depth_asc",
+                      value: "allPlans_depth_asc",
                     },
                     {
                       label: "Plan Depth (desc)",
-                      value: "floorPlans_depth_desc",
+                      value: "allPlans_depth_desc",
                     },
                   ]}
                 />
@@ -415,4 +415,4 @@ function Home({ router }) {
   );
 }
 
-export default withRouter(Home);
+export default withRouter(Master);
