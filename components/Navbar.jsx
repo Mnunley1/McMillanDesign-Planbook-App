@@ -7,11 +7,13 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 function Navbar() {
   const { user } = useUser();
+  const router = useRouter();
   const isAdmin = user?.publicMetadata?.role === "admin";
-  console.log("User metadata:", user?.publicMetadata);
+  const currentPath = router.pathname;
 
   return (
     <Box width="100%" height="4rem" bg="#1e1e1e">
@@ -28,16 +30,18 @@ function Navbar() {
                 <Link
                   as={NextLink}
                   href="/"
-                  color="white"
+                  color={currentPath === "/" ? "yellow.400" : "white"}
                   _hover={{ color: "yellow.400" }}
+                  fontWeight={currentPath === "/" ? "bold" : "normal"}
                 >
                   Public
                 </Link>
                 <Link
                   as={NextLink}
                   href="/admin"
-                  color="white"
+                  color={currentPath === "/admin" ? "yellow.400" : "white"}
                   _hover={{ color: "yellow.400" }}
+                  fontWeight={currentPath === "/admin" ? "bold" : "normal"}
                 >
                   Master View
                 </Link>
