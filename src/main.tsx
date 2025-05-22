@@ -21,7 +21,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       enableSystem={false}
       forcedTheme="dark"
     >
-      <ClerkProvider publishableKey={clerkPubKey}>
+      <ClerkProvider publishableKey={clerkPubKey} afterSignOutUrl="/sign-in">
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
         </QueryClientProvider>
