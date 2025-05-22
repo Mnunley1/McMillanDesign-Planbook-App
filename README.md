@@ -1,10 +1,49 @@
-# McMillanDesign-Planbook-App
+# McMillan Design Planbook
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+A modern web application for browsing and searching floor plans, built with React, Vite, and Algolia.
+
+## Features
+
+- 🔍 Advanced search functionality powered by Algolia
+- 🎨 Modern UI with Chakra UI
+- 🔐 Secure authentication with Clerk
+- 📱 Responsive design for all devices
+- 🚀 Fast performance with Vite
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18.x or later
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/mcmillan-design-planbook.git
+cd mcmillan-design-planbook
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Create a `.env` file in the root directory with the following variables:
+
+```env
+VITE_ALGOLIA_APP_ID=your_algolia_app_id
+VITE_ALGOLIA_SEARCH_API_KEY=your_algolia_search_api_key
+VITE_ALGOLIA_INDEX_NAME=your_algolia_index_name
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+```
+
+4. Start the development server:
 
 ```bash
 npm run dev
@@ -12,25 +51,50 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at `http://localhost:5173`.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## Building for Production
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+To create a production build:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+npm run build
+# or
+yarn build
+```
 
-## Learn More
+The build output will be in the `dist` directory.
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── components/     # React components
+├── pages/         # Page components
+├── styles/        # Global styles
+├── types/         # TypeScript type definitions
+├── utils/         # Utility functions
+└── App.tsx        # Main application component
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Technologies Used
 
-## Deploy on Vercel
+- [React](https://reactjs.org/)
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Chakra UI](https://chakra-ui.com/)
+- [Algolia](https://www.algolia.com/)
+- [Clerk](https://clerk.dev/)
+- [React Router](https://reactrouter.com/)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
