@@ -60,7 +60,6 @@ function Navbar() {
           <div className="hidden md:flex md:items-center md:space-x-4">
             {isSignedIn ? (
               <UserButton
-                afterSignOutUrl="/sign-in"
                 appearance={{
                   elements: {
                     avatarBox: "w-8 h-8",
