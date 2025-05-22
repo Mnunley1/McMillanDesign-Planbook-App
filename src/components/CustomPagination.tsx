@@ -7,7 +7,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { useInstantSearch, usePagination } from "react-instantsearch";
-import { useLocation } from "react-router-dom";
 
 interface PaginationItemProps extends React.ComponentProps<typeof Button> {
   isDisabled?: boolean;
@@ -103,7 +102,6 @@ function CustomPagination({ className }: CustomPaginationProps) {
   } = usePagination();
   const { status } = useInstantSearch();
   const isSearching = status === "loading" || status === "stalled";
-  const { pathname } = useLocation();
 
   // Handle page changes with scroll to top
   const handlePageChange = (page: number) => {

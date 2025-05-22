@@ -24,7 +24,7 @@ function CustomRangeInput({
   className,
 }: CustomRangeInputProps) {
   const { setIndexUiState, indexUiState } = useInstantSearch();
-  const { refine, range, start } = useRange({ attribute });
+  const { refine } = useRange({ attribute });
 
   // Get current range from URL state if it exists
   const currentRange = indexUiState.range?.[attribute];
