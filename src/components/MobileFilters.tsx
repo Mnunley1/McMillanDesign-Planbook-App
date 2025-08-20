@@ -104,7 +104,7 @@ const FilterContent = React.memo(function FilterContent() {
           <label className="text-sm text-muted-foreground mb-2 block">
             Square Feet
           </label>
-          <MemoizedCustomRangeInput attribute="sqft" min={1000} max={10000} />
+          <MemoizedCustomRangeInput attribute="sqft" min={10} max={20000} />
         </div>
         <div>
           <label className="text-sm text-muted-foreground mb-2 block">
