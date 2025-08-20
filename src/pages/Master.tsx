@@ -27,6 +27,7 @@ interface FloorPlanHit {
   bedrooms: number;
   bathrooms: number;
   squareFeet: number;
+  createdAt?: string; // ISO date string for when the plan was created
 }
 
 // Stats component to show hit count
@@ -171,7 +172,7 @@ function FiltersCard() {
               <label className="text-sm text-muted-foreground mb-2 block">
                 Square Feet
               </label>
-              <CustomRangeInput attribute="sqft" min={1000} max={10000} />
+              <CustomRangeInput attribute="sqft" min={10} max={20000} />
             </div>
             <div>
               <label className="text-sm text-muted-foreground mb-2 block">

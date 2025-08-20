@@ -14,6 +14,7 @@ interface FloorPlanHit {
   sqft?: number;
   planDepth?: number;
   planWidth?: number;
+  createdAt?: string; // ISO date string for when the plan was created
 }
 
 interface CustomHitsProps {

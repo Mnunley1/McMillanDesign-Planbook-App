@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, isRecentlyAdded } from "@/lib/utils";
 import { ArrowRight, BedDouble, Ruler, Square } from "lucide-react";
 import { useHits } from "react-instantsearch";
 import { Link as RouterLink, useLocation } from "react-router-dom";
@@ -16,6 +16,7 @@ interface FloorPlanHit {
   planDepth?: number;
   planWidth?: number;
   sqft?: number; // Handle both squareFeet and sqft
+  createdAt?: string; // ISO date string for when the plan was created
 }
 
 type SendEventForHits = ReturnType<typeof useHits>["sendEvent"];
@@ -76,12 +77,23 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
             }}
           />
 
+          {/* Square footage badge */}
           <Badge
             variant="secondary"
             className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm text-foreground shadow-sm"
           >
             {squareFootage.toLocaleString()} sqft
           </Badge>
+
+          {/* Recently added pill */}
+          {hit.createdAt && isRecentlyAdded(hit.createdAt) && (
+            <Badge
+              variant="default"
+              className="absolute top-2 left-2 bg-green-600 hover:bg-green-700 text-white shadow-sm text-xs"
+            >
+              Recently Added
+            </Badge>
+          )}
         </div>
         <CardContent className="px-4 space-y-1.5">
           <div className="flex items-center justify-between">

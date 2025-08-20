@@ -9,6 +9,42 @@ A modern web application for browsing and searching floor plans, built with Reac
 - 🔐 Secure authentication with Clerk
 - 📱 Responsive design for all devices
 - 🚀 Fast performance with Vite
+- 🆕 Recently Added indicators for new floor plans
+
+## Recently Added Feature
+
+The application now includes a "recently added" pill that automatically appears on floor plan cards for plans created within the last 30 days. This feature helps users identify newly added content.
+
+### How it works
+
+- **Automatic Detection**: Plans with a `createdAt` field in ISO format (e.g., "2025-04-28T19:21:57.900Z") are automatically checked
+- **Smart Display**: The pill shows relative time (e.g., "2 days ago", "1 week ago", "Today")
+- **Visual Design**: Green pill positioned on the top-left of the card image
+- **30-Day Window**: Only plans created within the last 30 days show the indicator
+
+### Data Requirements
+
+To enable this feature, ensure your floor plan data includes a `createdAt` field:
+
+```json
+{
+  "objectID": "plan-123",
+  "planNumber": "A-1234",
+  "description": "Modern 3-bedroom home",
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "squareFeet": 1800,
+  "createdAt": "2025-04-28T19:21:57.900Z"
+}
+```
+
+### Implementation Details
+
+The feature is implemented using:
+
+- **Utility Functions**: `isRecentlyAdded()`, `getTimeAgo()`, `getDaysSince()` in `src/lib/utils.ts`
+- **Component Updates**: Enhanced `FloorPlanCard` and `FloorPlanInfo` components
+- **Type Safety**: Updated TypeScript interfaces across all components
 
 ## Getting Started
 
