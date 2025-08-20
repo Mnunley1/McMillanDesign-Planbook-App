@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, isRecentlyAdded } from "@/lib/utils";
 import {
   ArrowUpDown,
   BedDouble,
@@ -31,6 +31,7 @@ interface FloorPlanHit {
   vehicleSpaces?: number;
   image?: string;
   planPdf?: Array<{ url: string }>;
+  createdAt?: string; // ISO date string for when the plan was created
 }
 
 interface FloorPlanInfoProps {
@@ -61,6 +62,16 @@ function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
           >
             {squareFootage.toLocaleString()} sqft
           </Badge>
+
+          {/* Recently added pill */}
+          {hit.createdAt && isRecentlyAdded(hit.createdAt) && (
+            <Badge
+              variant="default"
+              className="absolute top-4 left-4 bg-green-600 hover:bg-green-700 text-white shadow-sm"
+            >
+              Recently Added
+            </Badge>
+          )}
         </div>
       </Card>
 

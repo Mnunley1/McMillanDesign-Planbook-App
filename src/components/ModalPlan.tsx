@@ -23,6 +23,7 @@ interface PlanData {
   squareFeet: number;
   planPdf: Array<{ url: string }>;
   image?: string;
+  createdAt?: string; // ISO date string for when the plan was created
   [key: string]: any; // for other fields
 }
 
