@@ -72,6 +72,10 @@ function ResultsHeader() {
           items={[
             { label: "Default", value: "floorPlans" },
             {
+              label: "Newest",
+              value: "floorPlans_dateAdded_desc",
+            },
+            {
               label: "Bedrooms (asc)",
               value: "floorPlans_bedrooms_asc",
             },
