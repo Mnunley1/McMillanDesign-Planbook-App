@@ -6,9 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Checks if a date is within the last 30 days
+ * Checks if a date is within the last 45 days
  * @param dateString - ISO date string (e.g., "2025-04-28T19:21:57.900Z")
- * @returns boolean indicating if the date is within the last 30 days
+ * @returns boolean indicating if the date is within the last 45 days
  */
 export function isRecentlyAdded(dateString: string): boolean {
   if (!dateString) return false;
@@ -16,9 +16,9 @@ export function isRecentlyAdded(dateString: string): boolean {
   try {
     const date = new Date(dateString);
     const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const fortyFiveDaysAgo = new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000);
 
-    return date >= thirtyDaysAgo;
+    return date >= fortyFiveDaysAgo;
   } catch (error) {
     console.error("Error parsing date:", error);
     return false;
@@ -63,7 +63,7 @@ export function getTimeAgo(dateString: string): string | null {
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) {
+    if (diffDays < 45) {
       const weeks = Math.ceil(diffDays / 7);
       return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
     }
