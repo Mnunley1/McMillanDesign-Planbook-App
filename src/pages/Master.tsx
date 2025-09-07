@@ -72,6 +72,10 @@ function ResultsHeader() {
           items={[
             { label: "Default", value: "allPlans" },
             {
+              label: "Newest",
+              value: "allPlans_dateAdded_desc",
+            },
+            {
               label: "Bedrooms (asc)",
               value: "allPlans_bedrooms_asc",
             },
