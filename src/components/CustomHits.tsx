@@ -1,21 +1,10 @@
+import { motion } from "framer-motion";
+import { useHits, useInstantSearch } from "react-instantsearch";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useHits, useInstantSearch } from "react-instantsearch";
+import type { FloorPlanHit } from "@/types/floor-plan";
+import SearchEmptyState from "./SearchEmptyState";
 import FloorPlanCard from "./FloorPlanCard";
-
-interface FloorPlanHit {
-  objectID: string;
-  image?: string;
-  planNumber: string;
-  description: string;
-  bedrooms: number;
-  bathrooms: number;
-  squareFeet: number;
-  sqft?: number;
-  planDepth?: number;
-  planWidth?: number;
-  createdAt?: string; // ISO date string for when the plan was created
-}
 
 interface CustomHitsProps {
   className?: string;
@@ -26,12 +15,16 @@ function CustomHits({ className }: CustomHitsProps) {
   const { status } = useInstantSearch();
   const isSearching = status === "loading" || status === "stalled";
 
+  if (!isSearching && hits.length === 0) {
+    return <SearchEmptyState />;
+  }
+
   return (
     <div className={cn("grid grid-cols-1 gap-5 md:grid-cols-2", className)}>
       {isSearching
         ? // Loading skeletons
           Array.from({ length: 6 }).map((_, idx) => (
-            <Card key={idx} className="animate-pulse h-full">
+            <Card className="h-full animate-pulse" key={idx}>
               <div className="h-[200px] w-full bg-muted" />
               <CardContent className="space-y-3 p-4">
                 <div className="h-6 w-1/3 rounded bg-muted" />
@@ -49,10 +42,16 @@ function CustomHits({ className }: CustomHitsProps) {
             </Card>
           ))
         : // Actual hits
-          hits.map((hit) => (
-            <div key={hit.objectID} className="h-full">
+          hits.map((hit, index) => (
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="h-full"
+              initial={{ opacity: 0, y: 12 }}
+              key={hit.objectID}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+            >
               <FloorPlanCard hit={hit} sendEvent={sendEvent} />
-            </div>
+            </motion.div>
           ))}
     </div>
   );

@@ -1,14 +1,14 @@
+import React from "react";
+import { useToggleRefinement } from "react-instantsearch";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import React from "react";
-import { useToggleRefinement } from "react-instantsearch";
 
 interface CustomToggleRefinementProps {
   attribute: string;
-  label: string;
-  defaultRefinement?: boolean;
   className?: string;
+  defaultRefinement?: boolean;
+  label: string;
 }
 
 function CustomToggleRefinement({
@@ -39,19 +39,19 @@ function CustomToggleRefinement({
     >
       <div className="flex items-center space-x-3">
         <Checkbox
-          id={`toggle-${attribute}`}
           checked={value.isRefined}
-          onCheckedChange={(checked: boolean) => {
-            refine({ isRefined: !checked });
-          }}
           className="border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+          id={`toggle-${attribute}`}
+          onCheckedChange={() => {
+            refine({ isRefined: value.isRefined });
+          }}
         />
         <label
-          htmlFor={`toggle-${attribute}`}
           className={cn(
-            "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+            "font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
             value.isRefined && "font-semibold"
           )}
+          htmlFor={`toggle-${attribute}`}
         >
           {label}
         </label>
@@ -59,8 +59,8 @@ function CustomToggleRefinement({
 
       {value.isRefined && (
         <Badge
-          variant="default"
           className="bg-primary text-primary-foreground hover:bg-primary/90"
+          variant="default"
         >
           Active
         </Badge>
