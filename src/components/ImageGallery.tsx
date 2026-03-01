@@ -5,7 +5,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,6 +28,8 @@ export default function ImageGallery({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoomed, setZoomed] = useState(false);
   const [errorImages, setErrorImages] = useState<Set<string>>(new Set());
+
+  const touchStartX = useRef<number | null>(null);
 
   const hasMultiple = images.length > 1;
   const currentImage = images[selectedIndex]?.url;
@@ -67,7 +69,7 @@ export default function ImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className="relative flex aspect-[21/9] flex-col items-center justify-center bg-muted">
+      <div className="relative flex aspect-[4/3] flex-col items-center justify-center bg-muted">
         <ImageOff className="h-12 w-12 text-muted-foreground" />
         <p className="mt-2 text-muted-foreground text-sm">Image unavailable</p>
       </div>
@@ -77,11 +79,25 @@ export default function ImageGallery({
   return (
     <>
       {/* Main image */}
-      <div className="relative aspect-[21/9]">
+      <div
+        className="relative aspect-[4/3]"
+        onTouchStart={(e) => {
+          touchStartX.current = e.touches[0].clientX;
+        }}
+        onTouchEnd={(e) => {
+          if (touchStartX.current === null) return;
+          const delta = e.changedTouches[0].clientX - touchStartX.current;
+          touchStartX.current = null;
+          if (Math.abs(delta) <= 50) return;
+          delta < 0 ? goToNext() : goToPrev();
+        }}
+      >
         {currentImageHasError ? (
           <div className="flex h-full w-full flex-col items-center justify-center bg-muted">
             <ImageOff className="h-12 w-12 text-muted-foreground" />
-            <p className="mt-2 text-muted-foreground text-sm">Image unavailable</p>
+            <p className="mt-2 text-muted-foreground text-sm">
+              Image unavailable
+            </p>
           </div>
         ) : (
           <button
@@ -91,7 +107,7 @@ export default function ImageGallery({
           >
             <img
               alt={`${planNumber} - ${selectedIndex + 1} of ${images.length}`}
-              className="h-full w-full bg-muted/10 object-contain"
+              className="h-full w-full bg-muted/10 object-contain transition-opacity duration-300"
               onError={() => handleImageError(currentImage)}
               src={currentImage}
             />
@@ -119,6 +135,13 @@ export default function ImageGallery({
             </Button>
           </>
         )}
+
+        {/* Image counter */}
+        {hasMultiple && (
+          <div className="absolute right-2 bottom-2 rounded-full bg-background/80 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
+            {selectedIndex + 1} / {images.length}
+          </div>
+        )}
       </div>
 
       {/* Thumbnail row */}
@@ -127,10 +150,10 @@ export default function ImageGallery({
           {images.map((img, idx) => (
             <button
               className={cn(
-                "h-16 w-20 flex-shrink-0 overflow-hidden rounded border-2 transition-colors",
+                "h-20 w-24 flex-shrink-0 overflow-hidden rounded border-2 transition-all",
                 idx === selectedIndex
-                  ? "border-primary"
-                  : "border-transparent hover:border-muted-foreground/50"
+                  ? "border-primary ring-2 ring-primary/20"
+                  : "border-transparent opacity-70 hover:opacity-100"
               )}
               key={img.url}
               onClick={() => setSelectedIndex(idx)}
@@ -183,7 +206,9 @@ export default function ImageGallery({
           {currentImageHasError ? (
             <div className="flex h-full w-full flex-col items-center justify-center">
               <ImageOff className="h-16 w-16 text-muted-foreground" />
-              <p className="mt-3 text-muted-foreground text-sm">Image unavailable</p>
+              <p className="mt-3 text-muted-foreground text-sm">
+                Image unavailable
+              </p>
             </div>
           ) : (
             <button

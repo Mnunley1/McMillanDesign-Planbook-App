@@ -1,7 +1,7 @@
 import { ImageOff } from "lucide-react";
 import { useState } from "react";
 import { useHits, useInstantSearch } from "react-instantsearch";
-import { Link as RouterLink, useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import type { FloorPlanHit } from "@/types/floor-plan";
 import SearchEmptyState from "./SearchEmptyState";
@@ -44,6 +44,7 @@ export default function ListHits({ className }: ListHitsProps) {
   const { hits } = useHits<FloorPlanHit>();
   const { status } = useInstantSearch();
   const location = useLocation();
+  const navigate = useNavigate();
   const isMasterRoute = location.pathname.startsWith("/master");
   const isSearching = status === "loading" || status === "stalled";
 
@@ -78,28 +79,30 @@ export default function ListHits({ className }: ListHitsProps) {
         <TableBody>
           {hits.map((hit) => {
             const squareFootage = hit.squareFeet || hit.sqft || 0;
+            const targetUrl = isMasterRoute
+              ? `/master/plan/${hit.objectID}`
+              : `/plan/${hit.objectID}`;
             return (
-              <TableRow className="cursor-pointer" key={hit.objectID}>
+              <TableRow
+                className="cursor-pointer focus-visible:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                key={hit.objectID}
+                onClick={() => navigate(targetUrl)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    navigate(targetUrl);
+                  }
+                }}
+                role="link"
+                tabIndex={0}
+              >
                 <TableCell className="p-1">
-                  <RouterLink
-                    to={
-                      isMasterRoute
-                        ? `/master/plan/${hit.objectID}`
-                        : `/plan/${hit.objectID}`
-                    }
-                  >
+                  <RouterLink to={targetUrl}>
                     <ListThumbnail alt={hit.planNumber} src={hit.image} />
                   </RouterLink>
                 </TableCell>
                 <TableCell className="font-medium">
-                  <RouterLink
-                    className="hover:text-primary"
-                    to={
-                      isMasterRoute
-                        ? `/master/plan/${hit.objectID}`
-                        : `/plan/${hit.objectID}`
-                    }
-                  >
+                  <RouterLink className="hover:text-primary" to={targetUrl}>
                     {hit.planNumber}
                   </RouterLink>
                 </TableCell>

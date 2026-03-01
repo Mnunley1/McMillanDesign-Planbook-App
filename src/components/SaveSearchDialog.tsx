@@ -41,7 +41,7 @@ export default function SaveSearchDialog() {
           Save Search
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Save Search</DialogTitle>
           <DialogDescription>

@@ -28,29 +28,6 @@ export function isRecentlyAdded(dateString: string): boolean {
 }
 
 /**
- * Gets the number of days since a date
- * @param dateString - ISO date string (e.g., "2025-04-28T19:21:57.900Z")
- * @returns number of days since the date, or null if invalid
- */
-export function getDaysSince(dateString: string): number | null {
-  if (!dateString) {
-    return null;
-  }
-
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays;
-  } catch (error) {
-    console.error("Error parsing date:", error);
-    return null;
-  }
-}
-
-/**
  * Gets a human-readable string for how long ago a date was
  * @param dateString - ISO date string (e.g., "2025-04-28T19:21:57.900Z")
  * @returns human-readable string like "2 days ago", "1 week ago", etc.

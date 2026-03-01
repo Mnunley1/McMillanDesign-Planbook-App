@@ -40,6 +40,16 @@ export default defineSchema({
     name: v.string(),
     description: v.string(),
     planIds: v.array(v.string()),
+    status: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
+
+  savedComparisons: defineTable({
+    userId: v.string(),
+    name: v.string(),
+    planIds: v.array(v.string()),
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
 
@@ -52,4 +62,14 @@ export default defineSchema({
     .index("by_plan", ["planId"])
     .index("by_user", ["userId"])
     .index("by_timestamp", ["timestamp"]),
+
+  searchEvents: defineTable({
+    userId: v.string(),
+    query: v.string(),
+    filters: v.string(),
+    resultsCount: v.number(),
+    timestamp: v.number(),
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_user", ["userId"]),
 });

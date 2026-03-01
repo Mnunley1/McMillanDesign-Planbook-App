@@ -19,17 +19,23 @@ export function useCollections() {
   const create = (
     name: string,
     description: string,
-    planIds: string[] = []
+    planIds: string[] = [],
+    status: string = "draft"
   ) => {
     if (!userId) {
       return;
     }
-    createMutation({ userId, name, description, planIds });
+    createMutation({ userId, name, description, planIds, status });
   };
 
   const update = (
     id: string,
-    fields: { name?: string; description?: string; planIds?: string[] }
+    fields: {
+      name?: string;
+      description?: string;
+      planIds?: string[];
+      status?: string;
+    }
   ) => {
     updateMutation({ id: id as Id<"collections">, ...fields });
   };
@@ -43,6 +49,14 @@ export function useCollections() {
     create,
     update,
     remove,
+  };
+}
+
+export function usePublicCollections() {
+  const collections = useQuery(api.collections.listPublic);
+
+  return {
+    collections: collections ?? [],
   };
 }
 

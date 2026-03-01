@@ -20,23 +20,39 @@ function CustomHits({ className }: CustomHitsProps) {
   }
 
   return (
-    <div className={cn("grid grid-cols-1 gap-5 md:grid-cols-2", className)}>
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3",
+        className
+      )}
+    >
       {isSearching
         ? // Loading skeletons
           Array.from({ length: 6 }).map((_, idx) => (
-            <Card className="h-full animate-pulse" key={idx}>
-              <div className="h-[200px] w-full bg-muted" />
+            <Card className="h-full overflow-hidden" key={idx}>
+              {/* Image placeholder */}
+              <div className="relative aspect-[4/3] w-full animate-pulse bg-muted">
+                {/* Badge placeholder */}
+                <div className="absolute left-3 top-3 h-5 w-16 rounded-full animate-pulse bg-muted-foreground/20" />
+              </div>
               <CardContent className="space-y-3 p-4">
-                <div className="h-6 w-1/3 rounded bg-muted" />
-                <div className="space-y-2">
-                  <div className="h-4 w-full rounded bg-muted" />
-                  <div className="h-4 w-2/3 rounded bg-muted" />
+                {/* Plan number + arrow row */}
+                <div className="flex items-center justify-between">
+                  <div className="h-5 w-24 rounded animate-pulse bg-muted" />
+                  <div className="h-4 w-4 rounded animate-pulse bg-muted" />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="h-4 w-16 rounded bg-muted" />
-                  <div className="h-4 w-16 rounded bg-muted" />
-                  <div className="h-4 w-20 rounded bg-muted" />
-                  <div className="h-4 w-20 rounded bg-muted" />
+                {/* Description lines */}
+                <div className="space-y-2">
+                  <div className="h-4 w-full rounded animate-pulse bg-muted" />
+                  <div className="h-4 w-3/4 rounded animate-pulse bg-muted" />
+                </div>
+                {/* Separator */}
+                <div className="border-t border-border/50" />
+                {/* Stat placeholders */}
+                <div className="flex gap-4">
+                  <div className="h-4 w-12 rounded animate-pulse bg-muted" />
+                  <div className="h-4 w-12 rounded animate-pulse bg-muted" />
+                  <div className="h-4 w-16 rounded animate-pulse bg-muted" />
                 </div>
               </CardContent>
             </Card>
@@ -48,7 +64,7 @@ function CustomHits({ className }: CustomHitsProps) {
               className="h-full"
               initial={{ opacity: 0, y: 12 }}
               key={hit.objectID}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
+              transition={{ duration: 0.2, delay: Math.min(index, 8) * 0.04 }}
             >
               <FloorPlanCard hit={hit} sendEvent={sendEvent} />
             </motion.div>

@@ -42,7 +42,11 @@ export function useComparisonState(): ComparisonContextValue {
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
     try {
       const stored = sessionStorage.getItem("planbook-compare");
-      return stored ? JSON.parse(stored) : [];
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed)
+        ? parsed.filter((id: unknown): id is string => typeof id === "string")
+        : [];
     } catch {
       return [];
     }

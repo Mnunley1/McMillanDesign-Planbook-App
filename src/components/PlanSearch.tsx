@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { InstantSearch, useInstantSearch } from "react-instantsearch";
+import { useUser } from "@clerk/clerk-react";
+import { useMutation } from "convex/react";
 import { Lightbulb, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { InstantSearch, useInstantSearch } from "react-instantsearch";
 import { Outlet } from "react-router-dom";
 import { searchClient } from "@/lib/algolia";
 import type { SortItem } from "@/types/floor-plan";
+import { api } from "../../convex/_generated/api";
 import ActiveFilters from "./ActiveFilters";
 import CustomHits from "./CustomHits";
 import CustomNumericMenu from "./CustomNumericMenu";
@@ -30,23 +33,25 @@ function OnboardingBanner() {
     return localStorage.getItem(ONBOARDING_KEY) === "true";
   });
 
-  if (dismissed) return null;
+  if (dismissed) {
+    return null;
+  }
 
   return (
     <div className="mb-4 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/10 p-3">
       <Lightbulb className="mt-0.5 h-4 w-4 flex-none text-primary" />
-      <p className="flex-1 text-sm text-foreground/80">
+      <p className="flex-1 text-foreground/80 text-sm">
         Tip: Use the heart icon to save favorites and the scale icon to compare
         plans side by side.
       </p>
       <button
-        type="button"
+        aria-label="Dismiss tip"
         className="flex-none text-muted-foreground transition-colors hover:text-foreground"
         onClick={() => {
           localStorage.setItem(ONBOARDING_KEY, "true");
           setDismissed(true);
         }}
-        aria-label="Dismiss tip"
+        type="button"
       >
         <X className="h-4 w-4" />
       </button>
@@ -309,6 +314,60 @@ function FiltersCard() {
   );
 }
 
+function SearchEventTracker() {
+  const { indexUiState, results } = useInstantSearch();
+  const { user } = useUser();
+  const trackSearch = useMutation(api.searchEvents.track);
+  const trackSearchRef = useRef(trackSearch);
+  trackSearchRef.current = trackSearch;
+  const prevStateRef = useRef<string>("");
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Store latest values in refs so the debounced callback always reads current data
+  const latestRef = useRef({ indexUiState, results, userId: user?.id });
+  latestRef.current = { indexUiState, results, userId: user?.id };
+
+  // Debounce: reset timer on every state change, fire after 2s of inactivity
+  const stateKey = JSON.stringify(indexUiState);
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      const { indexUiState: uiState, results: res, userId } = latestRef.current;
+      if (!(userId && res)) {
+        return;
+      }
+
+      const key = JSON.stringify(uiState);
+      if (key === prevStateRef.current) {
+        return;
+      }
+      prevStateRef.current = key;
+
+      trackSearchRef.current({
+        userId,
+        query: uiState.query ?? "",
+        filters: JSON.stringify({
+          refinementList: uiState.refinementList,
+          range: uiState.range,
+          toggle: uiState.toggle,
+          numericMenu: uiState.numericMenu,
+        }),
+        resultsCount: res.nbHits,
+      });
+    }, 2000);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [stateKey]);
+
+  return null;
+}
+
 interface PlanSearchProps {
   indexName: string;
   sortItems: SortItem[];
@@ -335,6 +394,7 @@ export default function PlanSearch({ indexName, sortItems }: PlanSearchProps) {
         searchClient={searchClient}
         stalledSearchDelay={500}
       >
+        <SearchEventTracker />
         <Container className="max-w-full">
           <div className="py-6">
             {/* Main Content Grid */}

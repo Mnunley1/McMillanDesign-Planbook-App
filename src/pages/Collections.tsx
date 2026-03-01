@@ -1,12 +1,18 @@
+import { useUser } from "@clerk/clerk-react";
 import { FolderOpen } from "lucide-react";
 import CollectionCard from "@/components/CollectionCard";
 import CollectionManager from "@/components/CollectionManager";
 import EmptyState from "@/components/EmptyState";
 import { Container } from "@/components/ui/container";
-import { useCollections } from "@/hooks/use-collections";
+import { useCollections, usePublicCollections } from "@/hooks/use-collections";
 
 export default function Collections() {
-  const { collections } = useCollections();
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  const { collections: myCollections } = useCollections();
+  const { collections: publicCollections } = usePublicCollections();
+
+  const collections = isAdmin ? myCollections : publicCollections;
 
   return (
     <Container className="max-w-5xl py-6">
@@ -15,12 +21,16 @@ export default function Collections() {
           <FolderOpen className="h-6 w-6 text-primary" />
           Collections
         </h1>
-        <CollectionManager />
+        {isAdmin && <CollectionManager />}
       </div>
 
       {collections.length === 0 && (
         <EmptyState
-          description="Create a collection to organize plans into groups."
+          description={
+            isAdmin
+              ? "Create a collection to organize plans into groups."
+              : "No public collections are available yet."
+          }
           icon={FolderOpen}
           title="No collections yet"
         />
@@ -32,9 +42,11 @@ export default function Collections() {
             <CollectionCard
               description={collection.description}
               id={collection._id}
+              isAdmin={isAdmin}
               key={collection._id}
               name={collection.name}
               planCount={collection.planIds.length}
+              status={collection.status ?? "draft"}
             />
           ))}
         </div>

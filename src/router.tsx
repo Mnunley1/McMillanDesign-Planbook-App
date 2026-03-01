@@ -10,6 +10,8 @@ import Favorites from "./pages/Favorites";
 import Home from "./pages/Home";
 import Master from "./pages/Master";
 import PlanDetail from "./pages/PlanDetail";
+import Profile from "./pages/Profile";
+import ResetPasswordPage from "./pages/ResetPassword";
 import SignInPage from "./pages/SignIn";
 
 // Auth guard component
@@ -58,18 +60,16 @@ export const router = createBrowserRouter([
     element: <SignInPage />,
   },
   {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
+  },
+  {
     path: "/",
     element: <Root />,
     children: [
       {
         path: "/",
         element: <Home />,
-        children: [
-          {
-            path: "plan/:id",
-            element: <ModalPlan />,
-          },
-        ],
       },
       {
         path: "master",
@@ -86,6 +86,10 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: "plan/:id",
+        element: <PlanDetail />,
+      },
+      {
         path: "plan/:id/detail",
         element: <PlanDetail />,
       },
@@ -98,20 +102,16 @@ export const router = createBrowserRouter([
         element: <Compare />,
       },
       {
+        path: "profile",
+        element: <Profile />,
+      },
+      {
         path: "collections",
-        element: (
-          <AdminGuard>
-            <Collections />
-          </AdminGuard>
-        ),
+        element: <Collections />,
       },
       {
         path: "collections/:id",
-        element: (
-          <AdminGuard>
-            <CollectionDetail />
-          </AdminGuard>
-        ),
+        element: <CollectionDetail />,
       },
       {
         path: "analytics",

@@ -40,10 +40,19 @@ export default function FavoriteButton({
     >
       <motion.div
         key={animationKey}
-        animate={animationKey > 0 ? { scale: [1, 1.3, 1] } : undefined}
-        transition={{ duration: 0.3 }}
+        animate={
+          animationKey > 0
+            ? { scale: [1, 1.4, 0.9, 1.1, 1], rotate: [0, -10, 10, -5, 0] }
+            : undefined
+        }
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <Heart className={cn("h-4 w-4", favorited && "fill-current")} />
+        <Heart
+          className={cn(
+            "h-4 w-4 transition-colors duration-200",
+            favorited && "fill-current"
+          )}
+        />
       </motion.div>
       {size === "default" && (
         <span className="ml-2">{favorited ? "Favorited" : "Favorite"}</span>

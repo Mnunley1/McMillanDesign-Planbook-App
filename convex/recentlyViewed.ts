@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { rateLimiter } from "./rateLimits";
 
 export const list = query({
   args: { userId: v.string() },
@@ -19,6 +20,10 @@ export const add = mutation({
     planNumber: v.string(),
   },
   handler: async (ctx, { userId, planId, planNumber }) => {
+    await rateLimiter.limit(ctx, "addRecentlyViewed", {
+      key: userId,
+      throws: true,
+    });
     // Remove existing entry for this plan if it exists
     const existing = await ctx.db
       .query("recentlyViewed")

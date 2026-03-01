@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { rateLimiter } from "./rateLimits";
 
 export const list = query({
   args: { userId: v.string() },
@@ -28,6 +29,7 @@ export const isFavorite = query({
 export const add = mutation({
   args: { userId: v.string(), planId: v.string() },
   handler: async (ctx, { userId, planId }) => {
+    await rateLimiter.limit(ctx, "addFavorite", { key: userId, throws: true });
     const existing = await ctx.db
       .query("favorites")
       .withIndex("by_user_plan", (q) =>
@@ -50,6 +52,7 @@ export const add = mutation({
 export const remove = mutation({
   args: { userId: v.string(), planId: v.string() },
   handler: async (ctx, { userId, planId }) => {
+    await rateLimiter.limit(ctx, "addFavorite", { key: userId, throws: true });
     const existing = await ctx.db
       .query("favorites")
       .withIndex("by_user_plan", (q) =>

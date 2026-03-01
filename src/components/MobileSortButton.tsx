@@ -16,9 +16,7 @@ interface MobileSortButtonProps {
   sortItems: SortItem[];
 }
 
-export default function MobileSortButton({
-  sortItems,
-}: MobileSortButtonProps) {
+export default function MobileSortButton({ sortItems }: MobileSortButtonProps) {
   const { currentRefinement, refine, canRefine } = useSortBy({
     items: sortItems,
   });
@@ -28,8 +26,7 @@ export default function MobileSortButton({
   }
 
   const currentLabel =
-    sortItems.find((item) => item.value === currentRefinement)?.label ??
-    "Sort";
+    sortItems.find((item) => item.value === currentRefinement)?.label ?? "Sort";
 
   return (
     <DropdownMenu>

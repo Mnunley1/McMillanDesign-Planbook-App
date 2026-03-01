@@ -6,7 +6,7 @@ export const list = query({
   args: { userId: v.string() },
   handler: async (ctx, { userId }) => {
     return await ctx.db
-      .query("savedSearches")
+      .query("savedComparisons")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
@@ -14,24 +14,27 @@ export const list = query({
 });
 
 export const save = mutation({
-  args: { userId: v.string(), name: v.string(), uiState: v.string() },
-  handler: async (ctx, { userId, name, uiState }) => {
-    await rateLimiter.limit(ctx, "saveSearch", { key: userId, throws: true });
-    return await ctx.db.insert("savedSearches", {
+  args: { userId: v.string(), name: v.string(), planIds: v.array(v.string()) },
+  handler: async (ctx, { userId, name, planIds }) => {
+    await rateLimiter.limit(ctx, "saveComparison", {
+      key: userId,
+      throws: true,
+    });
+    return await ctx.db.insert("savedComparisons", {
       userId,
       name,
-      uiState,
+      planIds,
       createdAt: Date.now(),
     });
   },
 });
 
 export const remove = mutation({
-  args: { id: v.id("savedSearches") },
+  args: { id: v.id("savedComparisons") },
   handler: async (ctx, { id }) => {
     const doc = await ctx.db.get(id);
     if (doc) {
-      await rateLimiter.limit(ctx, "saveSearch", {
+      await rateLimiter.limit(ctx, "saveComparison", {
         key: doc.userId,
         throws: true,
       });

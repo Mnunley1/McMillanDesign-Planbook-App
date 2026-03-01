@@ -1,6 +1,5 @@
 export interface FloorPlanHit {
   basement?: boolean;
-  bathrooms: number;
   bedrooms: number;
   createdAt?: string;
   description: string;

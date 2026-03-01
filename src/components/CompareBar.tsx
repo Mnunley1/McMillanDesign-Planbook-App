@@ -20,7 +20,7 @@ export default function CompareBar() {
             {count} plan{count !== 1 ? "s" : ""} selected
           </span>
           <div className="flex gap-1">
-            {selectedIds.map((id) => (
+            {selectedIds.filter(Boolean).map((id) => (
               <button
                 className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs"
                 key={id}

@@ -1,10 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, GitCompareArrows, ImageOff, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BookmarkPlus,
+  Calendar,
+  GitCompareArrows,
+  ImageOff,
+  Loader2,
+  Play,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -14,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useComparison } from "@/hooks/use-comparison";
+import { useSavedComparisons } from "@/hooks/use-saved-comparisons";
 import { searchClient } from "@/lib/algolia";
 import { cn } from "@/lib/utils";
 import type { FloorPlanHit } from "@/types/floor-plan";
@@ -83,8 +102,11 @@ function ComparePlanImage({ src, alt }: { src?: string; alt: string }) {
 }
 
 export default function Compare() {
-  const { selectedIds, clear } = useComparison();
+  const { selectedIds, clear, add } = useComparison();
+  const { savedComparisons, save, remove: removeSaved } = useSavedComparisons();
   const navigate = useNavigate();
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["compare-plans", selectedIds],
@@ -100,8 +122,22 @@ export default function Compare() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const handleSave = () => {
+    if (!saveName.trim() || selectedIds.length === 0) return;
+    save(saveName.trim(), selectedIds);
+    setSaveName("");
+    setSaveDialogOpen(false);
+  };
+
+  const handleLoad = (planIds: string[]) => {
+    clear();
+    for (const id of planIds) {
+      add(id);
+    }
+  };
+
   return (
-    <Container className="max-w-6xl py-6">
+    <Container className="max-w-6xl py-6 pb-24">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-bold text-2xl">Compare Plans</h1>
         <div className="flex gap-2">
@@ -110,9 +146,15 @@ export default function Compare() {
             Back
           </Button>
           {plans.length > 0 && (
-            <Button onClick={clear} variant="ghost">
-              Clear All
-            </Button>
+            <>
+              <Button onClick={() => setSaveDialogOpen(true)} variant="outline">
+                <BookmarkPlus className="mr-2 h-4 w-4" />
+                Save Comparison
+              </Button>
+              <Button onClick={clear} variant="ghost">
+                Clear All
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -205,6 +247,78 @@ export default function Compare() {
           </div>
         </>
       )}
+
+      {/* Saved Comparisons */}
+      {savedComparisons.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-4 font-semibold text-lg">Saved Comparisons</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {savedComparisons.map((comparison) => (
+              <div
+                className="flex flex-col gap-3 rounded-lg border p-4"
+                key={comparison._id}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium">{comparison.name}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {comparison.planIds.length} plan
+                      {comparison.planIds.length !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(comparison.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-1"
+                    onClick={() => handleLoad(comparison.planIds)}
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Play className="mr-1.5 h-3.5 w-3.5" />
+                    Load
+                  </Button>
+                  <Button
+                    onClick={() => removeSaved(comparison._id)}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Save Dialog */}
+      <Dialog onOpenChange={setSaveDialogOpen} open={saveDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Save Comparison</DialogTitle>
+            <DialogDescription>
+              Give this comparison a name so you can find it later.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            onChange={(e) => setSaveName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+            }}
+            placeholder="e.g. Ranch plans under 2000 sqft"
+            value={saveName}
+          />
+          <DialogFooter>
+            <Button disabled={!saveName.trim()} onClick={handleSave}>
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 }
