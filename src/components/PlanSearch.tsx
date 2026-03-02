@@ -330,6 +330,7 @@ function SearchEventTracker() {
   // Debounce: reset timer on every state change, fire after 2s of inactivity
   const stateKey = JSON.stringify(indexUiState);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: stateKey is intentionally used as the trigger for this debounced effect
   useEffect(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -384,55 +385,53 @@ export default function PlanSearch({ indexName, sortItems }: PlanSearchProps) {
   };
 
   return (
-    <>
-      <InstantSearch
-        future={{
-          preserveSharedStateOnUnmount: true,
-        }}
-        indexName={indexName}
-        routing={true}
-        searchClient={searchClient}
-        stalledSearchDelay={500}
-      >
-        <SearchEventTracker />
-        <Container className="max-w-full">
-          <div className="py-6">
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-12 gap-6">
-              {/* Mobile Search — sticky */}
-              <div className="sticky top-0 z-40 col-span-12 bg-background pb-2 md:hidden">
-                <div className="w-full">
-                  <CustomSearchBox />
-                </div>
+    <InstantSearch
+      future={{
+        preserveSharedStateOnUnmount: true,
+      }}
+      indexName={indexName}
+      routing={true}
+      searchClient={searchClient}
+      stalledSearchDelay={500}
+    >
+      <SearchEventTracker />
+      <Container className="max-w-full">
+        <div className="py-6">
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-12 gap-6">
+            {/* Mobile Search — sticky */}
+            <div className="sticky top-0 z-40 col-span-12 bg-background pb-2 md:hidden">
+              <div className="w-full">
+                <CustomSearchBox />
               </div>
+            </div>
 
-              {/* Desktop Filters */}
-              <div className="hidden md:col-span-3 md:block">
-                <FiltersCard />
-              </div>
+            {/* Desktop Filters */}
+            <div className="hidden md:col-span-3 md:block">
+              <FiltersCard />
+            </div>
 
-              {/* Results Section */}
-              <div className="col-span-12 md:col-span-9">
-                <div className="space-y-6">
-                  <OnboardingBanner />
-                  <ResultsHeader
-                    onViewModeChange={handleViewModeChange}
-                    sortItems={sortItems}
-                    viewMode={viewMode}
-                  />
-                  <ActiveFilters />
-                  {viewMode === "grid" ? <CustomHits /> : <ListHits />}
-                  {/* Pagination */}
-                  <div className="flex justify-center pb-6">
-                    <CustomPagination />
-                  </div>
+            {/* Results Section */}
+            <div className="col-span-12 md:col-span-9">
+              <div className="space-y-6">
+                <OnboardingBanner />
+                <ResultsHeader
+                  onViewModeChange={handleViewModeChange}
+                  sortItems={sortItems}
+                  viewMode={viewMode}
+                />
+                <ActiveFilters />
+                {viewMode === "grid" ? <CustomHits /> : <ListHits />}
+                {/* Pagination */}
+                <div className="flex justify-center pb-6">
+                  <CustomPagination />
                 </div>
               </div>
             </div>
           </div>
-        </Container>
-        <Outlet />
-      </InstantSearch>
-    </>
+        </div>
+      </Container>
+      <Outlet />
+    </InstantSearch>
   );
 }

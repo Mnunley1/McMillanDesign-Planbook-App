@@ -19,7 +19,9 @@ export default function Profile() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const isAdmin = user.publicMetadata?.role === "admin";
   const initials =

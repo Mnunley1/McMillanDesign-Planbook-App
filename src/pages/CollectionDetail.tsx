@@ -50,11 +50,7 @@ export default function CollectionDetail() {
   const planIds = collection?.planIds ?? [];
   const status = collection?.status ?? "draft";
 
-  const {
-    data: plans = [],
-    isLoading: plansLoading,
-    refetch,
-  } = useQuery({
+  const { data: plans = [], isLoading: plansLoading } = useQuery({
     queryKey: ["collection-plans", id, planIds],
     queryFn: async () => {
       if (planIds.length === 0) {
@@ -69,19 +65,25 @@ export default function CollectionDetail() {
   });
 
   const handleRemovePlan = (planId: string) => {
-    if (!collection) return;
+    if (!collection) {
+      return;
+    }
     const updatedPlanIds = collection.planIds.filter((pid) => pid !== planId);
     update(collection._id, { planIds: updatedPlanIds });
   };
 
   const handleDeleteCollection = () => {
-    if (!collection) return;
+    if (!collection) {
+      return;
+    }
     remove(collection._id);
     navigate("/collections");
   };
 
   const handleToggleStatus = () => {
-    if (!collection) return;
+    if (!collection) {
+      return;
+    }
     const newStatus = status === "public" ? "draft" : "public";
     update(collection._id, { status: newStatus });
   };
@@ -115,9 +117,6 @@ export default function CollectionDetail() {
             it.
           </p>
           <div className="mt-4 flex gap-2">
-            <Button onClick={() => refetch()} variant="outline">
-              Retry
-            </Button>
             <Button asChild variant="outline">
               <Link to="/collections">Back to Collections</Link>
             </Button>
@@ -235,7 +234,7 @@ export default function CollectionDetail() {
               <FloorPlanCard hit={hit} />
               {isAdmin && (
                 <Button
-                  className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover/remove:opacity-100 bg-background/80 backdrop-blur-sm text-muted-foreground hover:text-destructive hover:bg-background/90"
+                  className="absolute top-2 left-2 z-10 bg-background/80 text-muted-foreground opacity-0 backdrop-blur-sm transition-opacity hover:bg-background/90 hover:text-destructive group-hover/remove:opacity-100"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
+import { useState } from "react";
 import { useFavorites } from "@/hooks/use-favorites";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -39,12 +39,12 @@ export default function FavoriteButton({
       variant="ghost"
     >
       <motion.div
-        key={animationKey}
         animate={
           animationKey > 0
             ? { scale: [1, 1.4, 0.9, 1.1, 1], rotate: [0, -10, 10, -5, 0] }
             : undefined
         }
+        key={animationKey}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <Heart

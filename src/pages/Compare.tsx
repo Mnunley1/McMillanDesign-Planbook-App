@@ -123,7 +123,9 @@ export default function Compare() {
   });
 
   const handleSave = () => {
-    if (!saveName.trim() || selectedIds.length === 0) return;
+    if (!saveName.trim() || selectedIds.length === 0) {
+      return;
+    }
     save(saveName.trim(), selectedIds);
     setSaveName("");
     setSaveDialogOpen(false);
@@ -307,7 +309,9 @@ export default function Compare() {
           <Input
             onChange={(e) => setSaveName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") handleSave();
+              if (e.key === "Enter") {
+                handleSave();
+              }
             }}
             placeholder="e.g. Ranch plans under 2000 sqft"
             value={saveName}

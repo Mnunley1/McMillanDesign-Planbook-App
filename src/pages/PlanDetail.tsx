@@ -202,12 +202,14 @@ export default function PlanDetail() {
   const prefersReducedMotion = useReducedMotion();
 
   // Focus main element and scroll to top when plan changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: id is intentionally used to re-run this effect on plan navigation
   useEffect(() => {
     mainRef.current?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }, [id]);
 
   // Intersection observer for sticky action bar
+  // biome-ignore lint/correctness/useExhaustiveDependencies: data is intentionally used to re-attach the observer after plan data loads
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) {

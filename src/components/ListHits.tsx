@@ -84,7 +84,7 @@ export default function ListHits({ className }: ListHitsProps) {
               : `/plan/${hit.objectID}`;
             return (
               <TableRow
-                className="cursor-pointer focus-visible:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                className="cursor-pointer focus-visible:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                 key={hit.objectID}
                 onClick={() => navigate(targetUrl)}
                 onKeyDown={(e) => {

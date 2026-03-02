@@ -1,20 +1,11 @@
 import { useSignIn } from "@clerk/clerk-react";
-import {
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  Mail,
-} from "lucide-react";
-import { type FormEvent, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-
-import { useTheme } from "@/components/theme-provider";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { cn } from "@/lib/utils";
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { type FormEvent, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useTheme } from "@/components/theme-provider";
 
 function BrandPanel() {
   return (
@@ -23,14 +14,16 @@ function BrandPanel() {
       <div
         className="pointer-events-none absolute -top-1/4 -left-1/4 h-[80%] w-[80%] opacity-30"
         style={{
-          background: "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
         }}
       />
       {/* Gold radial glow -- bottom right */}
       <div
         className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[60%] w-[60%] opacity-20"
         style={{
-          background: "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
         }}
       />
 
@@ -48,13 +41,25 @@ function BrandPanel() {
 
       {/* Corner accent lines -- top-left */}
       <div className="absolute top-8 left-8 h-16 w-16">
-        <div className="absolute top-0 left-0 h-px w-full" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
-        <div className="absolute top-0 left-0 h-full w-px" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
+        <div
+          className="absolute top-0 left-0 h-px w-full"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
+        <div
+          className="absolute top-0 left-0 h-full w-px"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
       </div>
       {/* Corner accent lines -- bottom-right */}
       <div className="absolute right-8 bottom-8 h-16 w-16">
-        <div className="absolute bottom-0 right-0 h-px w-full" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
-        <div className="absolute right-0 bottom-0 h-full w-px" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
+        <div
+          className="absolute right-0 bottom-0 h-px w-full"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
+        <div
+          className="absolute right-0 bottom-0 h-full w-px"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
       </div>
 
       {/* Content */}
@@ -70,10 +75,10 @@ function BrandPanel() {
 
         {/* Center text */}
         <div className="flex flex-1 flex-col items-start justify-center">
-          <h2 className="max-w-md font-sans text-3xl leading-tight text-primary lg:text-4xl">
+          <h2 className="max-w-md font-sans text-3xl text-primary leading-tight lg:text-4xl">
             Your Dream Home Starts Here
           </h2>
-          <p className="mt-4 max-w-sm text-base leading-relaxed text-neutral-400 lg:text-lg">
+          <p className="mt-4 max-w-sm text-base text-neutral-400 leading-relaxed lg:text-lg">
             Expertly crafted residential floor plans for every lifestyle
           </p>
         </div>
@@ -83,10 +88,10 @@ function BrandPanel() {
           <svg
             aria-hidden="true"
             className="h-12 w-16"
-            style={{ color: "oklch(0.81 0.16 99.78 / 0.25)" }}
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
+            style={{ color: "oklch(0.81 0.16 99.78 / 0.25)" }}
             viewBox="0 0 64 48"
           >
             <path d="M4 28 L32 4 L60 28 L60 46 L4 46 Z" />
@@ -121,7 +126,9 @@ export default function SignInPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!isLoaded || !signIn) return;
+    if (!(isLoaded && signIn)) {
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -167,7 +174,7 @@ export default function SignInPage() {
             className="h-9 w-auto"
             src={isDark ? "/MD-logo_white.png" : "/MD-logo_black.png"}
           />
-          <p className="mt-2 text-center font-sans text-sm text-muted-foreground">
+          <p className="mt-2 text-center font-sans text-muted-foreground text-sm">
             Your Dream Home Starts Here
           </p>
         </div>
@@ -184,17 +191,17 @@ export default function SignInPage() {
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="font-sans text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
+            <h1 className="font-sans font-semibold text-2xl text-foreground tracking-tight lg:text-3xl">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-muted-foreground text-sm">
               Sign in to your McMillan Design account
             </p>
           </div>
 
           {/* Error message */}
           {error && (
-            <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-destructive text-sm">
               {error}
             </div>
           )}
@@ -228,7 +235,7 @@ export default function SignInPage() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
                 <Link
-                  className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                  className="font-medium text-primary text-xs transition-colors hover:text-primary/80"
                   tabIndex={-1}
                   to="/reset-password"
                 >
@@ -269,7 +276,7 @@ export default function SignInPage() {
 
             {/* Submit */}
             <Button
-              className={cn("h-11 w-full text-sm font-semibold")}
+              className="h-11 w-full font-semibold text-sm"
               disabled={isSubmitting || !isLoaded}
               type="submit"
             >
@@ -288,10 +295,10 @@ export default function SignInPage() {
           </form>
 
           {/* Divider */}
-          <div className="mt-8 border-t border-border" />
+          <div className="mt-8 border-border border-t" />
 
           {/* Footer */}
-          <p className="mt-6 text-center text-xs text-muted-foreground">
+          <p className="mt-6 text-center text-muted-foreground text-xs">
             By signing in, you agree to our terms of service and privacy policy.
           </p>
         </div>

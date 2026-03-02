@@ -138,10 +138,10 @@ export default function ModalPlan() {
           </DialogDescription>
         </DialogHeader>
         <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleClose}
           className="absolute top-3 right-3 z-10 text-muted-foreground hover:text-foreground"
+          onClick={handleClose}
+          size="icon"
+          variant="ghost"
         >
           <X className="h-5 w-5" />
           <span className="sr-only">Close</span>
@@ -187,7 +187,7 @@ export default function ModalPlan() {
 
             <div className="flex w-full flex-col items-stretch gap-2 md:w-auto md:flex-row md:items-center">
               <Button
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground md:w-auto"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 md:w-auto"
                 disabled={!data?.planPdf?.[0]?.url || downloading}
                 onClick={handleDownload}
                 variant="default"

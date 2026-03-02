@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Scale } from "lucide-react";
+import { useState } from "react";
 import { useComparison } from "@/hooks/use-comparison";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -24,7 +24,7 @@ export default function CompareButton({
         className={cn(
           "text-muted-foreground hover:text-primary",
           selected && "text-primary",
-          isFull && !selected && "opacity-40 cursor-not-allowed",
+          isFull && !selected && "cursor-not-allowed opacity-40",
           className
         )}
         disabled={!selected && isFull}
@@ -49,8 +49,8 @@ export default function CompareButton({
         variant="ghost"
       >
         <motion.div
-          key={animationKey}
           animate={animationKey > 0 ? { scale: [1, 1.3, 1] } : undefined}
+          key={animationKey}
           transition={{ duration: 0.3 }}
         >
           <Scale className={cn("h-4 w-4", selected && "fill-current")} />

@@ -1,19 +1,7 @@
-/**
- * Reset Password Page
- *
- * ROUTER SETUP: Add the following route to src/router.tsx
- *
- * 1. Import at the top of the file:
- *    import ResetPasswordPage from "./pages/ResetPassword";
- *
- * 2. Add this route entry alongside the existing sign-in route (before the "/" path):
- *    {
- *      path: "/reset-password",
- *      element: <ResetPasswordPage />,
- *    },
- */
-
 import { useSignIn } from "@clerk/clerk-react";
+import { Button } from "@components/ui/button";
+import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -25,11 +13,7 @@ import {
 } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import { useTheme } from "@/components/theme-provider";
-import { Button } from "@components/ui/button";
-import { Input } from "@components/ui/input";
-import { Label } from "@components/ui/label";
 import { cn } from "@/lib/utils";
 
 type ResetStep = "request" | "verify" | "success";
@@ -41,14 +25,16 @@ function BrandPanel() {
       <div
         className="pointer-events-none absolute -top-1/4 -left-1/4 h-[80%] w-[80%] opacity-30"
         style={{
-          background: "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
         }}
       />
       {/* Gold radial glow -- bottom right */}
       <div
         className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[60%] w-[60%] opacity-20"
         style={{
-          background: "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, oklch(0.81 0.16 99.78) 0%, transparent 70%)",
         }}
       />
 
@@ -66,13 +52,25 @@ function BrandPanel() {
 
       {/* Corner accent lines -- top-left */}
       <div className="absolute top-8 left-8 h-16 w-16">
-        <div className="absolute top-0 left-0 h-px w-full" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
-        <div className="absolute top-0 left-0 h-full w-px" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
+        <div
+          className="absolute top-0 left-0 h-px w-full"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
+        <div
+          className="absolute top-0 left-0 h-full w-px"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
       </div>
       {/* Corner accent lines -- bottom-right */}
       <div className="absolute right-8 bottom-8 h-16 w-16">
-        <div className="absolute bottom-0 right-0 h-px w-full" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
-        <div className="absolute right-0 bottom-0 h-full w-px" style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }} />
+        <div
+          className="absolute right-0 bottom-0 h-px w-full"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
+        <div
+          className="absolute right-0 bottom-0 h-full w-px"
+          style={{ backgroundColor: "oklch(0.81 0.16 99.78)", opacity: 0.4 }}
+        />
       </div>
 
       {/* Content */}
@@ -86,10 +84,10 @@ function BrandPanel() {
         </div>
 
         <div className="flex flex-1 flex-col items-start justify-center">
-          <h2 className="max-w-md font-sans text-3xl leading-tight text-primary lg:text-4xl">
+          <h2 className="max-w-md font-sans text-3xl text-primary leading-tight lg:text-4xl">
             Your Dream Home Starts Here
           </h2>
-          <p className="mt-4 max-w-sm text-base leading-relaxed text-neutral-400 lg:text-lg">
+          <p className="mt-4 max-w-sm text-base text-neutral-400 leading-relaxed lg:text-lg">
             Expertly crafted residential floor plans for every lifestyle
           </p>
         </div>
@@ -98,10 +96,10 @@ function BrandPanel() {
           <svg
             aria-hidden="true"
             className="h-12 w-16"
-            style={{ color: "oklch(0.81 0.16 99.78 / 0.25)" }}
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
+            style={{ color: "oklch(0.81 0.16 99.78 / 0.25)" }}
             viewBox="0 0 64 48"
           >
             <path d="M4 28 L32 4 L60 28 L60 46 L4 46 Z" />
@@ -137,13 +135,15 @@ export default function ResetPasswordPage() {
 
   // Auto-redirect after success
   useEffect(() => {
-    if (step !== "success") return;
+    if (step !== "success") {
+      return;
+    }
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate("/sign-in", { replace: true });
+          navigate("/", { replace: true });
           return 0;
         }
         return prev - 1;
@@ -156,7 +156,9 @@ export default function ResetPasswordPage() {
   // Step 1: Request a reset code
   async function handleRequestCode(e: FormEvent) {
     e.preventDefault();
-    if (!isLoaded || !signIn) return;
+    if (!(isLoaded && signIn)) {
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -184,7 +186,9 @@ export default function ResetPasswordPage() {
   // Step 2: Verify code and set new password
   async function handleResetPassword(e: FormEvent) {
     e.preventDefault();
-    if (!isLoaded || !signIn) return;
+    if (!(isLoaded && signIn)) {
+      return;
+    }
 
     // Client-side password match validation
     if (newPassword !== confirmPassword) {
@@ -213,10 +217,7 @@ export default function ResetPasswordPage() {
           password: newPassword,
         });
 
-        if (
-          resetResult.status === "complete" &&
-          resetResult.createdSessionId
-        ) {
+        if (resetResult.status === "complete" && resetResult.createdSessionId) {
           await setActive({ session: resetResult.createdSessionId });
           setStep("success");
         } else {
@@ -240,9 +241,11 @@ export default function ResetPasswordPage() {
   }
 
   // Mask email for display: "john@example.com" -> "j***@example.com"
-  const maskedEmail = email
-    ? `${email[0]}${"*".repeat(Math.max(email.indexOf("@") - 1, 2))}${email.slice(email.indexOf("@"))}`
-    : "";
+  const atIndex = email.indexOf("@");
+  const maskedEmail =
+    atIndex > 0
+      ? `${email[0]}${"*".repeat(Math.max(atIndex - 1, 1))}${email.slice(atIndex)}`
+      : email;
 
   return (
     <div className="grid min-h-screen bg-background md:grid-cols-[45fr_55fr]">
@@ -274,16 +277,16 @@ export default function ResetPasswordPage() {
           {step === "request" && (
             <>
               <div className="mb-8">
-                <h1 className="font-sans text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
+                <h1 className="font-sans font-semibold text-2xl text-foreground tracking-tight lg:text-3xl">
                   Reset your password
                 </h1>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-muted-foreground text-sm">
                   Enter your email and we'll send you a reset code
                 </p>
               </div>
 
               {error && (
-                <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-destructive text-sm">
                   {error}
                 </div>
               )}
@@ -312,7 +315,7 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <Button
-                  className="h-11 w-full text-sm font-semibold"
+                  className="h-11 w-full font-semibold text-sm"
                   disabled={isSubmitting || !isLoaded}
                   type="submit"
                 >
@@ -327,11 +330,11 @@ export default function ResetPasswordPage() {
                 </Button>
               </form>
 
-              <div className="mt-8 border-t border-border" />
+              <div className="mt-8 border-border border-t" />
 
               <div className="mt-6 text-center">
                 <Link
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                  className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors hover:text-primary/80"
                   to="/sign-in"
                 >
                   <ArrowLeft className="size-3.5" />
@@ -345,10 +348,10 @@ export default function ResetPasswordPage() {
           {step === "verify" && (
             <>
               <div className="mb-8">
-                <h1 className="font-sans text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
+                <h1 className="font-sans font-semibold text-2xl text-foreground tracking-tight lg:text-3xl">
                   Check your email
                 </h1>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-muted-foreground text-sm">
                   Enter the code we sent to{" "}
                   <span className="font-medium text-foreground">
                     {maskedEmail}
@@ -357,7 +360,7 @@ export default function ResetPasswordPage() {
               </div>
 
               {error && (
-                <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-destructive text-sm">
                   {error}
                 </div>
               )}
@@ -450,9 +453,7 @@ export default function ResetPasswordPage() {
                     />
                     <button
                       aria-label={
-                        showConfirmPassword
-                          ? "Hide password"
-                          : "Show password"
+                        showConfirmPassword ? "Hide password" : "Show password"
                       }
                       className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
@@ -467,14 +468,14 @@ export default function ResetPasswordPage() {
                     </button>
                   </div>
                   {confirmPassword && newPassword !== confirmPassword && (
-                    <p className="text-xs text-destructive">
+                    <p className="text-destructive text-xs">
                       Passwords do not match
                     </p>
                   )}
                 </div>
 
                 <Button
-                  className="h-11 w-full text-sm font-semibold"
+                  className="h-11 w-full font-semibold text-sm"
                   disabled={isSubmitting || !isLoaded}
                   type="submit"
                 >
@@ -489,11 +490,11 @@ export default function ResetPasswordPage() {
                 </Button>
               </form>
 
-              <div className="mt-8 border-t border-border" />
+              <div className="mt-8 border-border border-t" />
 
               <div className="mt-6 text-center">
                 <button
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                  className="inline-flex items-center gap-1.5 font-medium text-primary text-sm transition-colors hover:text-primary/80"
                   onClick={() => {
                     setStep("request");
                     setError("");
@@ -517,20 +518,20 @@ export default function ResetPasswordPage() {
                 <CheckCircle2 className="size-8 text-primary" />
               </div>
 
-              <h1 className="font-sans text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
+              <h1 className="font-sans font-semibold text-2xl text-foreground tracking-tight lg:text-3xl">
                 Password reset complete
               </h1>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-3 text-muted-foreground text-sm">
                 Your password has been successfully updated. You are now signed
                 in.
               </p>
 
-              <p className="mt-6 text-xs text-muted-foreground">
-                Redirecting to sign in in {countdown}s...
+              <p className="mt-6 text-muted-foreground text-xs">
+                Redirecting in {countdown}s...
               </p>
 
               <Button
-                className="mt-4 h-11 w-full text-sm font-semibold"
+                className="mt-4 h-11 w-full font-semibold text-sm"
                 onClick={() => navigate("/", { replace: true })}
               >
                 Continue to app

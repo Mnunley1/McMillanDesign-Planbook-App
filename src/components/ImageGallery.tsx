@@ -81,15 +81,19 @@ export default function ImageGallery({
       {/* Main image */}
       <div
         className="relative aspect-[4/3]"
-        onTouchStart={(e) => {
-          touchStartX.current = e.touches[0].clientX;
-        }}
         onTouchEnd={(e) => {
-          if (touchStartX.current === null) return;
+          if (touchStartX.current === null) {
+            return;
+          }
           const delta = e.changedTouches[0].clientX - touchStartX.current;
           touchStartX.current = null;
-          if (Math.abs(delta) <= 50) return;
+          if (Math.abs(delta) <= 50) {
+            return;
+          }
           delta < 0 ? goToNext() : goToPrev();
+        }}
+        onTouchStart={(e) => {
+          touchStartX.current = e.touches[0].clientX;
         }}
       >
         {currentImageHasError ? (
@@ -138,7 +142,7 @@ export default function ImageGallery({
 
         {/* Image counter */}
         {hasMultiple && (
-          <div className="absolute right-2 bottom-2 rounded-full bg-background/80 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
+          <div className="absolute right-2 bottom-2 rounded-full bg-background/80 px-2.5 py-1 font-medium text-xs backdrop-blur-sm">
             {selectedIndex + 1} / {images.length}
           </div>
         )}

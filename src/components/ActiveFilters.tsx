@@ -142,7 +142,7 @@ export default function ActiveFilters() {
     <div className="flex flex-wrap items-center gap-2">
       {chips.map((chip) => (
         <Badge
-          className="gap-1 pr-1 text-xs bg-primary/15 text-primary border border-primary/20"
+          className="gap-1 border border-primary/20 bg-primary/15 pr-1 text-primary text-xs"
           key={chip.key}
           variant="secondary"
         >

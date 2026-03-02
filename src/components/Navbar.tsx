@@ -28,11 +28,11 @@ import ThemeToggle from "./ThemeToggle";
 import { useTheme } from "./theme-provider";
 
 interface NavLinkProps {
-  to: string;
-  label: string;
-  icon?: React.ReactNode;
   badge?: React.ReactNode;
+  icon?: React.ReactNode;
+  label: string;
   onClick?: () => void;
+  to: string;
 }
 
 function NavLink({ to, label, icon, badge, onClick }: NavLinkProps) {
@@ -135,7 +135,7 @@ function Navbar() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {isSignedIn ? (
-              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <Sheet onOpenChange={setIsOpen} open={isOpen}>
                 <SheetTrigger asChild>
                   <button
                     className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-primary/10 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
@@ -145,7 +145,7 @@ function Navbar() {
                     <Menu aria-hidden="true" className="block h-6 w-6" />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="right" className="flex flex-col">
+                <SheetContent className="flex flex-col" side="right">
                   <SheetHeader className="px-2">
                     <SheetTitle className="sr-only">Navigation</SheetTitle>
                     {/* User info header */}

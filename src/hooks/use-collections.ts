@@ -20,7 +20,7 @@ export function useCollections() {
     name: string,
     description: string,
     planIds: string[] = [],
-    status: string = "draft"
+    status = "draft"
   ) => {
     if (!userId) {
       return;

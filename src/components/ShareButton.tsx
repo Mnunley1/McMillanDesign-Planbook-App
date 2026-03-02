@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { Check, Share2 } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
 interface ShareButtonProps {
-  planNumber: string;
   className?: string;
+  planNumber: string;
 }
 
 export default function ShareButton({

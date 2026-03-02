@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  actionLabel?: string;
-  onAction?: () => void;
   actionHref?: string;
+  actionLabel?: string;
+  description: string;
+  icon: LucideIcon;
+  onAction?: () => void;
+  title: string;
 }
 
 export default function EmptyState({
