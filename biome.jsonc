@@ -1,0 +1,51 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite/biome/core", "ultracite/biome/react"],
+  "files": {
+    "includes": ["!src/components/ui", "!.claude"]
+  },
+  "linter": {
+    "rules": {
+      "style": {
+        // Project uses PascalCase for component files (e.g., FloorPlanCard.tsx)
+        "useFilenamingConvention": "off",
+        // Common React pattern for conditional rendering
+        "noNestedTernary": "off",
+        // Non-null assertions used for DOM root element
+        "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        // Used for static skeleton loaders where order never changes
+        "noArrayIndexKey": "off",
+        // Assignments in expressions used in refs and callbacks
+        "noAssignInExpressions": "off",
+        // Existing codebase uses `any` in some type definitions
+        "noExplicitAny": "off"
+      },
+      "a11y": {
+        // Custom Algolia widgets can't use standard htmlFor associations
+        "noLabelWithoutControl": "off",
+        // role attributes used intentionally
+        "useSemanticElements": "off",
+        // Images with click handlers are wrapped in interactive containers
+        "noNoninteractiveElementInteractions": "off"
+      },
+      "correctness": {
+        // Images are responsive with CSS-controlled dimensions
+        "useImageSize": "off"
+      },
+      "complexity": {
+        // forEach is fine for simple iterations
+        "noForEach": "off",
+        // Allow slightly higher complexity for validation functions
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "performance": {
+        // Regex in component functions is acceptable for this codebase
+        "useTopLevelRegex": "off",
+        // Namespace imports used for React and Radix UI
+        "noNamespaceImport": "off"
+      }
+    }
+  }
+}

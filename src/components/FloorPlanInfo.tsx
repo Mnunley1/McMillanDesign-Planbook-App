@@ -1,6 +1,3 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn, isRecentlyAdded } from "@/lib/utils";
 import {
   ArrowUpDown,
   BedDouble,
@@ -11,32 +8,16 @@ import {
   Ruler,
   Square,
 } from "lucide-react";
-
-interface FloorPlanHit {
-  objectID: string;
-  planNumber: string;
-  description: string;
-  bedrooms: number;
-  bathrooms: number;
-  squareFeet: number;
-  planDepth?: number;
-  planWidth?: number;
-  sqft?: number;
-  planType?: string;
-  numberOfLevels?: number;
-  primarySuite?: string;
-  garageOrientation?: string;
-  basement?: boolean;
-  walkupAttic?: boolean;
-  vehicleSpaces?: number;
-  image?: string;
-  planPdf?: Array<{ url: string }>;
-  createdAt?: string; // ISO date string for when the plan was created
-}
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn, isRecentlyAdded } from "@/lib/utils";
+import type { FloorPlanHit } from "@/types/floor-plan";
+import ImageGallery from "./ImageGallery";
+import PlanNotes from "./PlanNotes";
 
 interface FloorPlanInfoProps {
-  hit: FloorPlanHit;
   className?: string;
+  hit: FloorPlanHit;
 }
 
 function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
@@ -47,18 +28,14 @@ function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
     <div className={cn("space-y-6", className)}>
       {/* Plan Image */}
       <Card className="overflow-hidden">
-        <div className="relative aspect-[21/9]">
-          <img
-            src={hit.planPdf?.[0]?.url || "/no-image.jpg"}
-            alt={hit.planNumber}
-            className="h-full w-full object-contain bg-muted/10"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/no-image.jpg";
-            }}
+        <div className="relative">
+          <ImageGallery
+            images={hit.planPdf || []}
+            planNumber={hit.planNumber}
           />
           <Badge
+            className="absolute top-4 right-4 z-10 bg-background/90 text-foreground shadow-sm backdrop-blur-sm"
             variant="secondary"
-            className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm text-foreground shadow-sm"
           >
             {squareFootage.toLocaleString()} sqft
           </Badge>
@@ -66,8 +43,8 @@ function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
           {/* Recently added pill */}
           {hit.createdAt && isRecentlyAdded(hit.createdAt) && (
             <Badge
+              className="absolute top-4 left-4 z-10 bg-emerald-500/90 text-white shadow-sm hover:bg-emerald-500"
               variant="default"
-              className="absolute top-4 left-4 bg-green-600 hover:bg-green-700 text-white shadow-sm"
             >
               Recently Added
             </Badge>
@@ -78,16 +55,16 @@ function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
       {/* Plan Details */}
       <Card>
         <CardHeader className="border-b">
-          <h2 className="text-3xl font-semibold tracking-tight">
+          <h2 className="font-semibold text-3xl tracking-tight">
             {hit.planNumber}
           </h2>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          <div className="grid grid-cols-1 gap-x-12 gap-y-8 md:grid-cols-2">
             {/* Primary Features */}
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <h3 className="mb-4 flex items-center gap-2 font-semibold text-lg">
                   <Home className="h-5 w-5 text-primary" />
                   Primary Features
                 </h3>
@@ -142,7 +119,7 @@ function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
             {/* Dimensions & Features */}
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <h3 className="mb-4 flex items-center gap-2 font-semibold text-lg">
                   <Ruler className="h-5 w-5 text-primary" />
                   Dimensions & Features
                 </h3>
@@ -234,6 +211,15 @@ function FloorPlanInfo({ hit, className }: FloorPlanInfoProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* User Notes */}
+      {hit.objectID && (
+        <Card>
+          <CardContent className="pt-6">
+            <PlanNotes planId={hit.objectID} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

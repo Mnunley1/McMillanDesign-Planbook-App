@@ -1,21 +1,10 @@
+import { motion } from "framer-motion";
+import { useHits, useInstantSearch } from "react-instantsearch";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useHits, useInstantSearch } from "react-instantsearch";
+import type { FloorPlanHit } from "@/types/floor-plan";
 import FloorPlanCard from "./FloorPlanCard";
-
-interface FloorPlanHit {
-  objectID: string;
-  image?: string;
-  planNumber: string;
-  description: string;
-  bedrooms: number;
-  bathrooms: number;
-  squareFeet: number;
-  sqft?: number;
-  planDepth?: number;
-  planWidth?: number;
-  createdAt?: string; // ISO date string for when the plan was created
-}
+import SearchEmptyState from "./SearchEmptyState";
 
 interface CustomHitsProps {
   className?: string;
@@ -26,33 +15,59 @@ function CustomHits({ className }: CustomHitsProps) {
   const { status } = useInstantSearch();
   const isSearching = status === "loading" || status === "stalled";
 
+  if (!isSearching && hits.length === 0) {
+    return <SearchEmptyState />;
+  }
+
   return (
-    <div className={cn("grid grid-cols-1 gap-5 md:grid-cols-2", className)}>
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3",
+        className
+      )}
+    >
       {isSearching
         ? // Loading skeletons
           Array.from({ length: 6 }).map((_, idx) => (
-            <Card key={idx} className="animate-pulse h-full">
-              <div className="h-[200px] w-full bg-muted" />
+            <Card className="h-full overflow-hidden" key={idx}>
+              {/* Image placeholder */}
+              <div className="relative aspect-[4/3] w-full animate-pulse bg-muted">
+                {/* Badge placeholder */}
+                <div className="absolute top-3 left-3 h-5 w-16 animate-pulse rounded-full bg-muted-foreground/20" />
+              </div>
               <CardContent className="space-y-3 p-4">
-                <div className="h-6 w-1/3 rounded bg-muted" />
-                <div className="space-y-2">
-                  <div className="h-4 w-full rounded bg-muted" />
-                  <div className="h-4 w-2/3 rounded bg-muted" />
+                {/* Plan number + arrow row */}
+                <div className="flex items-center justify-between">
+                  <div className="h-5 w-24 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-4 animate-pulse rounded bg-muted" />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="h-4 w-16 rounded bg-muted" />
-                  <div className="h-4 w-16 rounded bg-muted" />
-                  <div className="h-4 w-20 rounded bg-muted" />
-                  <div className="h-4 w-20 rounded bg-muted" />
+                {/* Description lines */}
+                <div className="space-y-2">
+                  <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+                </div>
+                {/* Separator */}
+                <div className="border-border/50 border-t" />
+                {/* Stat placeholders */}
+                <div className="flex gap-4">
+                  <div className="h-4 w-12 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-12 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-16 animate-pulse rounded bg-muted" />
                 </div>
               </CardContent>
             </Card>
           ))
         : // Actual hits
-          hits.map((hit) => (
-            <div key={hit.objectID} className="h-full">
+          hits.map((hit, index) => (
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="h-full"
+              initial={{ opacity: 0, y: 12 }}
+              key={hit.objectID}
+              transition={{ duration: 0.2, delay: Math.min(index, 8) * 0.04 }}
+            >
               <FloorPlanCard hit={hit} sendEvent={sendEvent} />
-            </div>
+            </motion.div>
           ))}
     </div>
   );

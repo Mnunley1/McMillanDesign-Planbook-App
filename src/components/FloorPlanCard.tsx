@@ -1,38 +1,36 @@
+import { ArrowRight, BedDouble, ImageOff, Ruler } from "lucide-react";
+import { useState } from "react";
+import type { useHits } from "react-instantsearch";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn, isRecentlyAdded } from "@/lib/utils";
-import { ArrowRight, BedDouble, Ruler, Square } from "lucide-react";
-import { useHits } from "react-instantsearch";
-import { Link as RouterLink, useLocation } from "react-router-dom";
-
-interface FloorPlanHit {
-  objectID: string;
-  image?: string;
-  planNumber: string;
-  description: string;
-  bedrooms: number;
-  bathrooms: number;
-  squareFeet: number;
-  planDepth?: number;
-  planWidth?: number;
-  sqft?: number; // Handle both squareFeet and sqft
-  createdAt?: string; // ISO date string for when the plan was created
-}
+import { useComparison } from "@/hooks/use-comparison";
+import { useFavorites } from "@/hooks/use-favorites";
+import { cn, getTimeAgo, isRecentlyAdded } from "@/lib/utils";
+import type { FloorPlanHit } from "@/types/floor-plan";
+import CompareButton from "./CompareButton";
+import FavoriteButton from "./FavoriteButton";
 
 type SendEventForHits = ReturnType<typeof useHits>["sendEvent"];
 
 interface FloorPlanCardProps {
+  className?: string;
   hit: FloorPlanHit;
   sendEvent?: SendEventForHits;
-  className?: string;
 }
 
 function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
   const location = useLocation();
   const isMasterRoute = location.pathname.startsWith("/master");
+  const [imageError, setImageError] = useState(false);
+
+  const { isSelected } = useComparison();
+  const { isFavorite } = useFavorites();
+  const isInComparison = isSelected(hit.objectID);
+  const isFavorited = isFavorite(hit.objectID);
+  const buttonsAlwaysVisible = isInComparison || isFavorited;
 
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent event propagation to ensure RouterLink works
     e.stopPropagation();
 
     if (sendEvent) {
@@ -44,93 +42,151 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
     }
   };
 
-  // Use either squareFeet or sqft, preferring squareFeet
   const squareFootage = hit.squareFeet || hit.sqft || 0;
+
+  const recentlyAddedLabel =
+    hit.createdAt && isRecentlyAdded(hit.createdAt)
+      ? (() => {
+          const timeAgo = getTimeAgo(hit.createdAt);
+          if (!timeAgo) {
+            return "Recently Added";
+          }
+          if (timeAgo === "Today") {
+            return "New Today";
+          }
+          return `Added ${timeAgo}`;
+        })()
+      : null;
+
+  const altText = `${hit.planType ? `${hit.planType} floor plan` : "Floor plan"} ${hit.planNumber}: ${hit.bedrooms} bed, ${squareFootage.toLocaleString()} sq ft`;
 
   return (
     <RouterLink
+      className={cn(
+        "group block h-full hover:no-underline",
+        "rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      )}
+      onClick={handleClick}
       to={
         isMasterRoute ? `/master/plan/${hit.objectID}` : `/plan/${hit.objectID}`
       }
-      className="block hover:no-underline group h-full"
-      onClick={handleClick}
     >
       <Card
         className={cn(
-          "overflow-hidden transition-all duration-300 h-full",
+          "h-full overflow-hidden transition-all duration-300",
           "hover:-translate-y-1 hover:shadow-lg",
-          "border-border/50 hover:border-border",
+          "border-border/60 hover:border-primary/30",
+          "ring-1 ring-transparent hover:ring-primary/10",
           "bg-card hover:bg-accent/5",
           "cursor-pointer",
           "flex flex-col",
+          "max-sm:flex-row",
           className
         )}
         id={hit.objectID}
       >
-        <div className="relative h-auto overflow-hidden">
-          <img
-            src={hit.image || "/no-image.jpg"}
-            alt={hit.planNumber}
-            className="h-auto w-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/no-image.jpg";
-            }}
-          />
+        {/* Image container */}
+        <div
+          className={cn(
+            "relative overflow-hidden",
+            "aspect-[4/3]",
+            "max-sm:aspect-auto max-sm:h-36 max-sm:w-36 max-sm:flex-none"
+          )}
+        >
+          {imageError || !hit.image ? (
+            <div className="flex h-full w-full flex-col items-center justify-center bg-muted">
+              <ImageOff className="h-12 w-12 text-muted-foreground" />
+              <p className="mt-2 text-muted-foreground text-sm">
+                Image unavailable
+              </p>
+            </div>
+          ) : (
+            <img
+              alt={altText}
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              loading="lazy"
+              onError={() => setImageError(true)}
+              src={hit.image}
+            />
+          )}
+
+          {/* Gradient overlay for button readability */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
 
           {/* Square footage badge */}
           <Badge
+            className="absolute top-2 right-2 bg-background/90 text-foreground shadow-sm backdrop-blur-sm"
             variant="secondary"
-            className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm text-foreground shadow-sm"
           >
             {squareFootage.toLocaleString()} sqft
           </Badge>
 
-          {/* Recently added pill */}
-          {hit.createdAt && isRecentlyAdded(hit.createdAt) && (
+          {/* Recently added pill with time context */}
+          {recentlyAddedLabel && (
             <Badge
+              className="absolute top-2 left-2 bg-emerald-500/90 text-white text-xs shadow-sm hover:bg-emerald-500"
               variant="default"
-              className="absolute top-2 left-2 bg-green-600 hover:bg-green-700 text-white shadow-sm text-xs"
             >
-              Recently Added
+              {recentlyAddedLabel}
             </Badge>
           )}
-        </div>
-        <CardContent className="px-4 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-semibold text-foreground">
-              {hit.planNumber}
-            </h3>
-            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+
+          {/* Action buttons - hidden by default on desktop, revealed on hover */}
+          <div
+            className={cn(
+              "absolute right-2 bottom-2 flex gap-2 transition-opacity duration-200",
+              buttonsAlwaysVisible
+                ? "opacity-100"
+                : "md:opacity-0 md:group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+            )}
+          >
+            <CompareButton
+              className="min-h-[44px] min-w-[44px] bg-background/80 shadow-sm backdrop-blur-sm"
+              planId={hit.objectID}
+            />
+            <FavoriteButton
+              className="min-h-[44px] min-w-[44px] bg-background/80 shadow-sm backdrop-blur-sm"
+              planId={hit.objectID}
+            />
           </div>
-          <p className="line-clamp-2 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
+        </div>
+
+        {/* Content */}
+        <CardContent className="flex min-w-0 flex-1 flex-col justify-center space-y-1.5 px-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-foreground text-lg tracking-tight">
+                {hit.planNumber}
+              </h3>
+              {hit.planType && (
+                <Badge className="px-1.5 py-0 text-[10px]" variant="outline">
+                  {hit.planType}
+                </Badge>
+              )}
+            </div>
+            <ArrowRight className="h-4 w-4 flex-none -translate-x-2 text-muted-foreground opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+          </div>
+
+          <p className="line-clamp-2 text-muted-foreground text-sm transition-colors group-hover:text-foreground/80 max-sm:hidden">
             {hit.description}
           </p>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center gap-1.5 text-lg text-muted-foreground">
-              <BedDouble className="h-4 w-4 flex-none" />
-              <span>{hit.bedrooms} Bedrooms</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-lg text-muted-foreground">
-              <Square className="h-4 w-4 flex-none" />
-              <span>{squareFootage.toLocaleString()} SQFT</span>
+
+          {/* Separator */}
+          <div className="border-border/50 border-t max-sm:hidden" />
+
+          {/* Stats row */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground text-sm">
+            <div className="flex items-center gap-1">
+              <BedDouble className="h-3.5 w-3.5 flex-none" />
+              <span>{hit.bedrooms} Bed</span>
             </div>
             {hit.planDepth && hit.planWidth && (
-              <>
-                <div className="flex items-center gap-1.5 text-lg text-muted-foreground">
-                  <Ruler className="h-4 w-4 flex-none" />
-                  <span className="h-4 flex items-center justify-center text-md font-medium flex-none">
-                    Plan Width
-                  </span>
-                  <span>{hit.planWidth}'</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-lg text-muted-foreground">
-                  <Ruler className="h-4 w-4 flex-none" />
-                  <span className="h-4 flex items-center justify-center text-md font-medium flex-none">
-                    Plan Depth
-                  </span>
-                  <span>{hit.planDepth}'</span>
-                </div>
-              </>
+              <div className="flex items-center gap-1">
+                <Ruler className="h-3.5 w-3.5 flex-none" />
+                <span>
+                  {hit.planWidth}' x {hit.planDepth}'
+                </span>
+              </div>
             )}
           </div>
         </CardContent>
