@@ -89,7 +89,7 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
         <div
           className={cn(
             "relative overflow-hidden",
-            "aspect-[4/3]",
+            "aspect-[1/1]",
             "max-sm:aspect-auto max-sm:h-36 max-sm:w-36 max-sm:flex-none"
           )}
         >
@@ -103,7 +103,7 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
           ) : (
             <img
               alt={altText}
-              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              className="h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
               loading="lazy"
               onError={() => setImageError(true)}
               src={hit.image}
