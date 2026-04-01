@@ -143,6 +143,7 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
             <CompareButton
               className="min-h-[44px] min-w-[44px] bg-background/80 shadow-sm backdrop-blur-sm"
               planId={hit.objectID}
+              planNumber={hit.planNumber}
             />
             <FavoriteButton
               className="min-h-[44px] min-w-[44px] bg-background/80 shadow-sm backdrop-blur-sm"

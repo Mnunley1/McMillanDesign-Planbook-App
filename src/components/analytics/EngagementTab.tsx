@@ -89,7 +89,7 @@ export default function EngagementTab({
                   >
                     <span className="flex items-center gap-2">
                       <span className="text-muted-foreground">{i + 1}.</span>
-                      <PlanLink planId={item.planId} planNumber={item.planId} />
+                      <PlanLink planId={item.planId} planNumber={item.planNumber} />
                     </span>
                     <span className="text-muted-foreground">
                       {item.count} {item.count === 1 ? "favorite" : "favorites"}
@@ -119,7 +119,7 @@ export default function EngagementTab({
                   >
                     <span className="flex items-center gap-2">
                       <span className="text-muted-foreground">{i + 1}.</span>
-                      <PlanLink planId={item.planId} planNumber={item.planId} />
+                      <PlanLink planId={item.planId} planNumber={item.planNumber} />
                     </span>
                     <span className="text-muted-foreground">
                       {item.count}{" "}

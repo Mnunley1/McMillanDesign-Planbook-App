@@ -331,7 +331,7 @@ export default function PlanDetail() {
           </div>
           <div className="flex items-center gap-2">
             <FavoriteButton planId={id!} size="sm" />
-            <CompareButton planId={id!} />
+            <CompareButton planId={id!} planNumber={data.planNumber} />
             <Button
               disabled={!hasPdf || downloading}
               onClick={handleDownload}
@@ -472,7 +472,7 @@ export default function PlanDetail() {
                 {/* Action button row */}
                 <div className="flex items-center gap-2">
                   <FavoriteButton planId={id!} size="sm" />
-                  <CompareButton planId={id!} />
+                  <CompareButton planId={id!} planNumber={data.planNumber} />
                   <Button
                     aria-label="Print floor plan"
                     disabled={!hasPdf}

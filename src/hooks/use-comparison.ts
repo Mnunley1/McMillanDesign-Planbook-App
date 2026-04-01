@@ -9,17 +9,19 @@ import {
 const MAX_COMPARE = 5;
 
 interface ComparisonContextValue {
-  add: (planId: string) => void;
+  add: (planId: string, planNumber?: string) => void;
   clear: () => void;
   count: number;
   isFull: boolean;
   isSelected: (planId: string) => boolean;
+  planNumberMap: Record<string, string>;
   remove: (planId: string) => void;
   selectedIds: string[];
 }
 
 export const ComparisonContext = createContext<ComparisonContextValue>({
   selectedIds: [],
+  planNumberMap: {},
   add: () => {
     /* noop */
   },
@@ -54,25 +56,55 @@ export function useComparisonState(): ComparisonContextValue {
     }
   });
 
+  const [planNumberMap, setPlanNumberMap] = useState<Record<string, string>>(
+    () => {
+      try {
+        const stored = sessionStorage.getItem("planbook-compare-numbers");
+        if (!stored) {
+          return {};
+        }
+        return JSON.parse(stored) ?? {};
+      } catch {
+        return {};
+      }
+    }
+  );
+
   useEffect(() => {
     sessionStorage.setItem("planbook-compare", JSON.stringify(selectedIds));
   }, [selectedIds]);
 
-  const add = useCallback((planId: string) => {
+  useEffect(() => {
+    sessionStorage.setItem(
+      "planbook-compare-numbers",
+      JSON.stringify(planNumberMap)
+    );
+  }, [planNumberMap]);
+
+  const add = useCallback((planId: string, planNumber?: string) => {
     setSelectedIds((prev) => {
       if (prev.includes(planId) || prev.length >= MAX_COMPARE) {
         return prev;
       }
       return [...prev, planId];
     });
+    if (planNumber) {
+      setPlanNumberMap((prev) => ({ ...prev, [planId]: planNumber }));
+    }
   }, []);
 
   const remove = useCallback((planId: string) => {
     setSelectedIds((prev) => prev.filter((id) => id !== planId));
+    setPlanNumberMap((prev) => {
+      const next = { ...prev };
+      delete next[planId];
+      return next;
+    });
   }, []);
 
   const clear = useCallback(() => {
     setSelectedIds([]);
+    setPlanNumberMap({});
   }, []);
 
   const isSelected = useCallback(
@@ -82,6 +114,7 @@ export function useComparisonState(): ComparisonContextValue {
 
   return {
     selectedIds,
+    planNumberMap,
     add,
     remove,
     clear,

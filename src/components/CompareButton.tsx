@@ -8,10 +8,12 @@ import { Button } from "./ui/button";
 interface CompareButtonProps {
   className?: string;
   planId: string;
+  planNumber?: string;
 }
 
 export default function CompareButton({
   planId,
+  planNumber,
   className,
 }: CompareButtonProps) {
   const { isSelected, add, remove, isFull } = useComparison();
@@ -19,7 +21,13 @@ export default function CompareButton({
   const [animationKey, setAnimationKey] = useState(0);
 
   return (
-    <div className="relative inline-flex">
+    <div
+      className="relative inline-flex"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       <Button
         className={cn(
           "text-muted-foreground hover:text-primary",
@@ -35,7 +43,7 @@ export default function CompareButton({
             remove(planId);
           } else {
             setAnimationKey((k) => k + 1);
-            add(planId);
+            add(planId, planNumber);
           }
         }}
         size="icon"

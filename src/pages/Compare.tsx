@@ -3,20 +3,27 @@ import {
   ArrowLeft,
   BookmarkPlus,
   Calendar,
+  Expand,
   GitCompareArrows,
+  Minus,
   ImageOff,
   Loader2,
   Play,
+  Plus,
+  RotateCcw,
   Trash2,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogContentNoClose,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -79,12 +86,101 @@ const ATTRIBUTES: Array<{
   },
 ];
 
+function ZoomableImage({ src, alt }: { src: string; alt: string }) {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    setScale((s) => Math.min(5, Math.max(0.5, s - e.deltaY * 0.002)));
+  }, []);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    isDragging.current = true;
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    setPosition((p) => ({ x: p.x + dx, y: p.y + dy }));
+  }, []);
+
+  const handlePointerUp = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  const reset = useCallback(() => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-center gap-2">
+        <span className="w-12 text-center text-muted-foreground text-sm">
+          {Math.round(scale * 100)}%
+        </span>
+        <div className="flex items-center gap-1">
+          <Button
+            onClick={() => setScale((s) => Math.max(0.5, s - 0.25))}
+            size="icon"
+            variant="outline"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={() => setScale((s) => Math.min(5, s + 0.25))}
+            size="icon"
+            variant="outline"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button onClick={reset} size="icon" variant="outline">
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <div
+        className="overflow-hidden rounded-md"
+        onWheel={handleWheel}
+        style={{ cursor: scale > 1 ? "grab" : "default" }}
+      >
+        <div
+          className="flex max-h-[78vh] items-center justify-center"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        >
+          <img
+            alt={alt}
+            className="max-h-[78vh] w-full select-none object-contain"
+            draggable={false}
+            src={src}
+            style={{
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transformOrigin: "center center",
+              transition: isDragging.current ? "none" : "transform 0.1s ease-out",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ComparePlanImage({ src, alt }: { src?: string; alt: string }) {
   const [imageError, setImageError] = useState(false);
+  const [enlarged, setEnlarged] = useState(false);
 
   if (imageError || !src) {
     return (
-      <div className="flex h-40 w-full flex-col items-center justify-center bg-muted">
+      <div className="flex h-48 w-full flex-col items-center justify-center bg-muted">
         <ImageOff className="h-10 w-10 text-muted-foreground" />
         <p className="mt-1 text-muted-foreground text-xs">Image unavailable</p>
       </div>
@@ -92,12 +188,39 @@ function ComparePlanImage({ src, alt }: { src?: string; alt: string }) {
   }
 
   return (
-    <img
-      alt={alt}
-      className="h-40 w-full object-cover"
-      onError={() => setImageError(true)}
-      src={src}
-    />
+    <>
+      <button
+        className="group relative w-full cursor-zoom-in"
+        onClick={() => setEnlarged(true)}
+        type="button"
+      >
+        <img
+          alt={alt}
+          className="w-full object-contain p-2"
+          onError={() => setImageError(true)}
+          src={src}
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
+          <Expand className="h-6 w-6 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+        </div>
+      </button>
+      <Dialog onOpenChange={setEnlarged} open={enlarged}>
+        <DialogContentNoClose className="max-h-[90vh] max-w-[90vw] p-4">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{alt}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-sm">{alt}</span>
+            <DialogClose asChild>
+              <Button size="icon" variant="outline">
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogClose>
+          </div>
+          <ZoomableImage alt={alt} src={src} />
+        </DialogContentNoClose>
+      </Dialog>
+    </>
   );
 }
 

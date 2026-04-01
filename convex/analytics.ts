@@ -304,13 +304,26 @@ export const getEngagementStats = query({
     const allNotes = await ctx.db.query("notes").collect();
     const notes = filterByTime(allNotes, "updatedAt", startTime, endTime);
 
+    // Build planId → planNumber lookup from ALL views (not just filtered range)
+    const allViews = await ctx.db.query("planViews").collect();
+    const planNumberMap: Record<string, string> = {};
+    for (const v of allViews) {
+      if (!planNumberMap[v.planId]) {
+        planNumberMap[v.planId] = v.planNumber;
+      }
+    }
+
     // Top favorited plans
     const favCounts: Record<string, number> = {};
     for (const f of favorites) {
       favCounts[f.planId] = (favCounts[f.planId] ?? 0) + 1;
     }
     const topFavorited = Object.entries(favCounts)
-      .map(([planId, count]) => ({ planId, count }))
+      .map(([planId, count]) => ({
+        planId,
+        planNumber: planNumberMap[planId] ?? planId,
+        count,
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
@@ -322,7 +335,11 @@ export const getEngagementStats = query({
       }
     }
     const topCollected = Object.entries(collectCounts)
-      .map(([planId, count]) => ({ planId, count }))
+      .map(([planId, count]) => ({
+        planId,
+        planNumber: planNumberMap[planId] ?? planId,
+        count,
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 

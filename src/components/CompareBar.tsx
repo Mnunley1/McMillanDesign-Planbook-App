@@ -1,10 +1,11 @@
-import { Scale, X } from "lucide-react";
+import { AlertCircle, Scale, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useComparison } from "@/hooks/use-comparison";
 import { Button } from "./ui/button";
 
 export default function CompareBar() {
-  const { selectedIds, remove, clear, count } = useComparison();
+  const { selectedIds, planNumberMap, remove, clear, count, isFull } =
+    useComparison();
   const navigate = useNavigate();
 
   if (count === 0) {
@@ -17,8 +18,14 @@ export default function CompareBar() {
         <div className="flex items-center gap-3">
           <Scale className="h-5 w-5 text-primary" />
           <span className="font-medium text-sm">
-            {count} plan{count !== 1 ? "s" : ""} selected
+            {count}/5 plan{count !== 1 ? "s" : ""} selected
           </span>
+          {isFull && (
+            <span className="flex items-center gap-1 rounded bg-amber-500/15 px-2 py-1 text-xs font-medium text-amber-400">
+              <AlertCircle className="h-3.5 w-3.5" />
+              Max reached
+            </span>
+          )}
           <div className="flex gap-1">
             {selectedIds.filter(Boolean).map((id) => (
               <button
@@ -27,7 +34,7 @@ export default function CompareBar() {
                 onClick={() => remove(id)}
                 type="button"
               >
-                {id.slice(0, 8)}...
+                {planNumberMap[id] ?? id.slice(0, 8)}
                 <X className="h-3 w-3" />
               </button>
             ))}
