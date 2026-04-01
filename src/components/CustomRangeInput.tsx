@@ -1,20 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useInstantSearch, useRange } from "react-instantsearch";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
 interface CustomRangeInputProps {
   attribute: string;
-  min: number;
-  max: number;
   className?: string;
-}
-
-interface ValidationState {
-  from: { isValid: boolean; message: string };
-  to: { isValid: boolean; message: string };
+  max: number;
+  min: number;
 }
 
 function CustomRangeInput({
@@ -29,100 +24,43 @@ function CustomRangeInput({
   // Get current range from URL state if it exists
   const currentRange = indexUiState.range?.[attribute];
   const currentMin = currentRange
-    ? Number(currentRange.split(":")[0])
+    ? Number(String(currentRange).split(":")[0])
     : undefined;
   const currentMax = currentRange
-    ? Number(currentRange.split(":")[1])
+    ? Number(String(currentRange).split(":")[1])
     : undefined;
 
-  // Initialize from and to values from URL state if it exists
-  const [from, setFrom] = useState(() => {
-    if (currentMin !== undefined && currentMin !== min) {
-      return currentMin.toString();
-    }
-    return "";
-  });
-  const [to, setTo] = useState(() => {
-    if (currentMax !== undefined && currentMax !== max) {
-      return currentMax.toString();
-    }
-    return "";
-  });
+  const [localRange, setLocalRange] = useState<[number, number]>([
+    currentMin !== undefined && !Number.isNaN(currentMin) ? currentMin : min,
+    currentMax !== undefined && !Number.isNaN(currentMax) ? currentMax : max,
+  ]);
 
-  // Sync input fields with refinement state when it changes externally
+  const isActive = currentRange !== undefined;
+
+  // Sync local state with external changes
   useEffect(() => {
-    if (!currentRange) {
-      // If there's no range in the URL state, clear the inputs
-      setFrom("");
-      setTo("");
-      setValidation({
-        from: { isValid: true, message: "" },
-        to: { isValid: true, message: "" },
-      });
-    }
-  }, [currentRange]);
-
-  // Add validation state
-  const [validation, setValidation] = useState<ValidationState>({
-    from: { isValid: true, message: "" },
-    to: { isValid: true, message: "" },
-  });
-
-  const validateInput = (value: string, field: "from" | "to"): boolean => {
-    if (value === "") return true;
-
-    const numValue = Number(value);
-    if (isNaN(numValue)) return false;
-
-    if (field === "from") {
-      if (numValue < min) {
-        setValidation((prev) => ({
-          ...prev,
-          from: { isValid: false, message: `Minimum value is ${min}` },
-        }));
-        return false;
-      }
-      if (to && numValue > Number(to)) {
-        setValidation((prev) => ({
-          ...prev,
-          from: { isValid: false, message: "Must be less than max value" },
-        }));
-        return false;
+    if (currentRange) {
+      const parts = String(currentRange).split(":");
+      const newMin = Number(parts[0]);
+      const newMax = Number(parts[1]);
+      if (!(Number.isNaN(newMin) || Number.isNaN(newMax))) {
+        setLocalRange([newMin, newMax]);
       }
     } else {
-      if (numValue > max) {
-        setValidation((prev) => ({
-          ...prev,
-          to: { isValid: false, message: `Maximum value is ${max}` },
-        }));
-        return false;
-      }
-      if (from && numValue < Number(from)) {
-        setValidation((prev) => ({
-          ...prev,
-          to: { isValid: false, message: "Must be greater than min value" },
-        }));
-        return false;
-      }
+      setLocalRange([min, max]);
     }
+  }, [currentRange, min, max]);
 
-    setValidation((prev) => ({
-      ...prev,
-      [field]: { isValid: true, message: "" },
-    }));
-    return true;
-  };
+  const step = attribute === "sqft" ? 100 : 1;
 
   const updateRange = useCallback(
     (startValue: number | undefined, endValue: number | undefined) => {
-      // First update the refinement
       if (startValue !== undefined && endValue !== undefined) {
         refine([startValue, endValue]);
       } else {
         refine([min, max]);
       }
 
-      // Then update the URL state
       setIndexUiState((prevState) => {
         const newRange = prevState.range ? { ...prevState.range } : {};
 
@@ -141,127 +79,57 @@ function CustomRangeInput({
     [attribute, setIndexUiState, refine, min, max]
   );
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    // Validate both inputs before submitting
-    const isFromValid = validateInput(from, "from");
-    const isToValid = validateInput(to, "to");
-
-    if (!isFromValid || !isToValid) {
-      return;
-    }
-
-    // Convert empty strings to undefined to use min/max defaults
-    const startValue = from === "" ? min : Number(from);
-    const endValue = to === "" ? max : Number(to);
-
-    // Always update if values are valid
-    if (startValue <= endValue) {
-      updateRange(startValue, endValue);
-    }
-  };
-
-  const handleInputChange = (field: "from" | "to", value: string) => {
-    // Allow empty string, numbers, and a single decimal point
-    if (value === "" || /^-?\d*\.?\d*$/.test(value)) {
-      if (field === "from") {
-        setFrom(value);
-        validateInput(value, "from");
-      } else {
-        setTo(value);
-        validateInput(value, "to");
-      }
+  const handleValueCommit = (values: number[]) => {
+    const [newMin, newMax] = values;
+    if (newMin === min && newMax === max) {
+      updateRange(undefined, undefined);
+    } else {
+      updateRange(newMin, newMax);
     }
   };
 
   const handleClear = () => {
-    setFrom("");
-    setTo("");
-    setValidation({
-      from: { isValid: true, message: "" },
-      to: { isValid: true, message: "" },
-    });
-    // Only update if there are current refinements
-    if (currentMin !== undefined || currentMax !== undefined) {
-      updateRange(undefined, undefined);
-    }
+    setLocalRange([min, max]);
+    updateRange(undefined, undefined);
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-start">
-            <div className="flex flex-col">
-              <Input
-                type="text"
-                inputMode="numeric"
-                value={from}
-                onChange={(e) => handleInputChange("from", e.target.value)}
-                className={cn(
-                  "bg-background hover:bg-accent focus:bg-background",
-                  !validation.from.isValid &&
-                    "border-destructive focus-visible:ring-destructive"
-                )}
-                placeholder={`Min ${min}`}
-                pattern="-?\d*\.?\d*"
-                min={min}
-              />
-              {!validation.from.isValid && (
-                <p className="text-xs text-destructive mt-1 absolute top-full">
-                  {validation.from.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-col">
-              <Input
-                type="text"
-                inputMode="numeric"
-                value={to}
-                onChange={(e) => handleInputChange("to", e.target.value)}
-                className={cn(
-                  "bg-background hover:bg-accent focus:bg-background",
-                  !validation.to.isValid &&
-                    "border-destructive focus-visible:ring-destructive"
-                )}
-                placeholder={`Max ${max}`}
-                pattern="-?\d*\.?\d*"
-                max={max}
-              />
-              {!validation.to.isValid && (
-                <p className="text-xs text-destructive mt-1 absolute top-full">
-                  {validation.to.message}
-                </p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              variant="default"
-              size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 h-10"
-              disabled={!validation.from.isValid || !validation.to.isValid}
-            >
-              Apply
-            </Button>
-
-            {(from || to) && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={handleClear}
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Clear range</span>
-              </Button>
-            )}
-          </div>
-        </div>
-      </form>
+    <div className={cn("space-y-3", className)}>
+      <div className="flex items-center gap-2">
+        <Slider
+          className="flex-1"
+          max={max}
+          min={min}
+          onValueChange={(values) => setLocalRange(values as [number, number])}
+          onValueCommit={handleValueCommit}
+          step={step}
+          value={localRange}
+        />
+        {isActive && (
+          <Button
+            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+            onClick={handleClear}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Clear range</span>
+          </Button>
+        )}
+      </div>
+      <div className="flex justify-between text-muted-foreground text-xs">
+        <span>
+          {attribute === "sqft"
+            ? localRange[0].toLocaleString()
+            : localRange[0]}
+        </span>
+        <span>
+          {attribute === "sqft"
+            ? localRange[1].toLocaleString()
+            : localRange[1]}
+        </span>
+      </div>
     </div>
   );
 }

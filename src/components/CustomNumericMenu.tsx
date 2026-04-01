@@ -1,19 +1,19 @@
+import { useNumericMenu } from "react-instantsearch";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { useNumericMenu } from "react-instantsearch";
 
 interface NumericMenuItem {
-  label: string;
-  value: string;
-  start?: number;
   end?: number;
+  label: string;
+  start?: number;
+  value: string;
 }
 
 interface CustomNumericMenuProps {
   attribute: string;
-  items: NumericMenuItem[];
   className?: string;
+  items: NumericMenuItem[];
 }
 
 function CustomNumericMenu({
@@ -28,35 +28,35 @@ function CustomNumericMenu({
 
   return (
     <RadioGroup
-      value={instantSearchItems.find((item) => item.isRefined)?.value || ""}
-      onValueChange={(value) => refine(value)}
       className={cn("space-y-2", className)}
+      onValueChange={(value) => refine(value)}
+      value={instantSearchItems.find((item) => item.isRefined)?.value || ""}
     >
       {instantSearchItems.map((item) => (
         <div
-          key={item.value || "all"}
           className={cn(
             "flex items-center space-x-3 rounded-md p-2 transition-colors hover:bg-accent",
             item.isRefined && "bg-accent"
           )}
+          key={item.value || "all"}
         >
           <RadioGroupItem
-            value={item.value}
-            id={`${attribute}-${item.value || "all"}`}
             className="border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            id={`${attribute}-${item.value || "all"}`}
+            value={item.value}
           />
           <label
-            htmlFor={`${attribute}-${item.value || "all"}`}
             className={cn(
-              "flex flex-1 items-center justify-between text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+              "flex flex-1 items-center justify-between font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
               item.isRefined && "font-semibold"
             )}
+            htmlFor={`${attribute}-${item.value || "all"}`}
           >
             <span>{item.label}</span>
             {item.isRefined && (
               <Badge
-                variant="default"
                 className="ml-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                variant="default"
               >
                 Selected
               </Badge>

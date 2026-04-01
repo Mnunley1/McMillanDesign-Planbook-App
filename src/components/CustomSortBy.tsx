@@ -1,7 +1,8 @@
 // src/components/CustomSortBy.tsx
-import { cn } from "@/lib/utils";
+
 import { useSortBy } from "react-instantsearch";
 import Select from "react-select";
+import { cn } from "@/lib/utils";
 
 interface SortOption {
   label: string;
@@ -9,8 +10,8 @@ interface SortOption {
 }
 
 interface CustomSortByProps {
-  items: SortOption[];
   className?: string;
+  items: SortOption[];
 }
 
 function CustomSortBy({ items, className }: CustomSortByProps) {
@@ -30,12 +31,6 @@ function CustomSortBy({ items, className }: CustomSortByProps) {
     <div className={cn("w-[200px]", className)}>
       <Select
         classNamePrefix="sort-select"
-        value={currentOption}
-        onChange={(option) => option && refine(option.value)}
-        options={items}
-        isDisabled={!canRefine}
-        isSearchable={false}
-        menuPlacement="auto"
         classNames={{
           control: () =>
             "!bg-background !border-border hover:!border-border !min-h-[36px] !shadow-none rounded-md",
@@ -58,6 +53,11 @@ function CustomSortBy({ items, className }: CustomSortByProps) {
           noOptionsMessage: () => "!text-muted-foreground py-2 px-3",
           loadingMessage: () => "!text-muted-foreground py-2 px-3",
         }}
+        isDisabled={!canRefine}
+        isSearchable={false}
+        menuPlacement="auto"
+        onChange={(option) => option && refine(option.value)}
+        options={items}
         styles={{
           // Only keep styles that can't be handled by Tailwind
           control: (base) => ({
@@ -75,6 +75,7 @@ function CustomSortBy({ items, className }: CustomSortByProps) {
             backgroundColor: "transparent",
           }),
         }}
+        value={currentOption}
       />
     </div>
   );

@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,10 +5,12 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { useInstantSearch, usePagination } from "react-instantsearch";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface PaginationItemProps extends React.ComponentProps<typeof Button> {
-  isDisabled?: boolean;
   href?: string;
+  isDisabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
 }
 
@@ -29,10 +29,10 @@ function PaginationItem({
   if (isDisabled) {
     return (
       <Button
-        variant="outline"
-        size="sm"
-        disabled
         className={buttonClasses}
+        disabled
+        size="sm"
+        variant="outline"
         {...props}
       />
     );
@@ -41,10 +41,10 @@ function PaginationItem({
   if (href) {
     return (
       <Button
-        variant="outline"
-        size="sm"
         asChild
         className={buttonClasses}
+        size="sm"
+        variant="outline"
         {...props}
       >
         <a
@@ -66,10 +66,10 @@ function PaginationItem({
 
   return (
     <Button
-      variant="outline"
-      size="sm"
-      onClick={onClick}
       className={buttonClasses}
+      onClick={onClick}
+      size="sm"
+      variant="outline"
       {...props}
     />
   );
@@ -107,9 +107,7 @@ function CustomPagination({ className }: CustomPaginationProps) {
   const handlePageChange = (page: number) => {
     refine(page);
     // Find the layout container and scroll it to top
-    const layoutContainer = document.querySelector(
-      ".h-\\[calc\\(100vh-4rem\\)\\]"
-    );
+    const layoutContainer = document.querySelector("[data-scroll-container]");
     if (layoutContainer instanceof HTMLElement) {
       layoutContainer.scrollTo({ top: 0, behavior: "instant" });
     }
@@ -126,11 +124,11 @@ function CustomPagination({ className }: CustomPaginationProps) {
       <div className="flex justify-center space-x-2">
         {Array.from({ length: 4 }).map((_, idx) => (
           <Button
-            key={idx}
-            variant="outline"
-            size="sm"
-            disabled
             className="min-w-[2.5rem] animate-pulse bg-muted"
+            disabled
+            key={idx}
+            size="sm"
+            variant="outline"
           />
         ))}
       </div>
@@ -138,37 +136,40 @@ function CustomPagination({ className }: CustomPaginationProps) {
   }
 
   return (
-    <div className={cn("flex flex-col items-center gap-4", className)}>
+    <nav
+      aria-label="Pagination"
+      className={cn("flex flex-col items-center gap-4", className)}
+    >
       <div className="flex items-center gap-2">
         <PaginationItem
-          isDisabled={isFirstPage}
-          href={createURL(firstPageIndex)}
-          onClick={() => handlePageChange(firstPageIndex)}
           aria-label="First page"
+          href={createURL(firstPageIndex)}
+          isDisabled={isFirstPage}
+          onClick={() => handlePageChange(firstPageIndex)}
         >
           <ChevronsLeft className="h-4 w-4" />
         </PaginationItem>
         <PaginationItem
-          isDisabled={isFirstPage}
-          href={createURL(previousPageIndex)}
-          onClick={() => handlePageChange(previousPageIndex)}
           aria-label="Previous page"
+          href={createURL(previousPageIndex)}
+          isDisabled={isFirstPage}
+          onClick={() => handlePageChange(previousPageIndex)}
         >
           <ChevronLeft className="h-4 w-4" />
         </PaginationItem>
         <PaginationItem
-          isDisabled={isLastPage}
-          href={createURL(nextPageIndex)}
-          onClick={() => handlePageChange(nextPageIndex)}
           aria-label="Next page"
+          href={createURL(nextPageIndex)}
+          isDisabled={isLastPage}
+          onClick={() => handlePageChange(nextPageIndex)}
         >
           <ChevronRight className="h-4 w-4" />
         </PaginationItem>
         <PaginationItem
-          isDisabled={isLastPage}
-          href={createURL(lastPageIndex)}
-          onClick={() => handlePageChange(lastPageIndex)}
           aria-label="Last page"
+          href={createURL(lastPageIndex)}
+          isDisabled={isLastPage}
+          onClick={() => handlePageChange(lastPageIndex)}
         >
           <ChevronsRight className="h-4 w-4" />
         </PaginationItem>
@@ -179,21 +180,23 @@ function CustomPagination({ className }: CustomPaginationProps) {
           const label = page + 1;
           return (
             <PaginationItem
-              key={page}
-              isDisabled={false}
+              aria-current={currentRefinement === page ? "page" : undefined}
               aria-label={`Page ${label}`}
-              href={createURL(page)}
-              onClick={() => handlePageChange(page)}
               className={cn(
-                currentRefinement === page && "bg-primary text-primary"
+                currentRefinement === page &&
+                  "bg-primary text-primary-foreground"
               )}
+              href={createURL(page)}
+              isDisabled={false}
+              key={page}
+              onClick={() => handlePageChange(page)}
             >
               {label}
             </PaginationItem>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
 
