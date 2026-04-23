@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
   ArrowDownToLine,
+  ArrowLeft,
   ArrowUpFromLine,
   Car,
   ChevronRight,
@@ -15,7 +16,7 @@ import {
   Ruler,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import CompareButton from "@/components/CompareButton";
 import FavoriteButton from "@/components/FavoriteButton";
 import ImageGallery from "@/components/ImageGallery";
@@ -183,9 +184,15 @@ function getFeaturePills(hit: FloorPlanHit) {
 
 export default function PlanDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data, isLoading, error, refetch } = usePlanData(id);
   const [downloading, setDownloading] = useState(false);
   const [stickyVisible, setStickyVisible] = useState(false);
+
+  const handleBackToSearch = useCallback(() => {
+    const lastSearchUrl = sessionStorage.getItem("lastSearchUrl");
+    navigate(lastSearchUrl ?? "/");
+  }, [navigate]);
 
   const { user } = useUser();
   const trackViewMutation = useMutation(api.analytics.trackView);
@@ -356,6 +363,17 @@ export default function PlanDetail() {
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
+        {/* Back to search results */}
+        <Button
+          className="mb-3 -ml-3 h-auto px-3 py-1.5 text-muted-foreground hover:text-foreground"
+          onClick={handleBackToSearch}
+          size="sm"
+          variant="ghost"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Search Results
+        </Button>
+
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="mb-6">
           <ol className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-sm">

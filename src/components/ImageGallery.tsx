@@ -1,10 +1,4 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  ImageOff,
-  ZoomIn,
-  ZoomOut,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import ZoomableImage from "./ZoomableImage";
 
 interface ImageGalleryProps {
   images: Array<{ url: string }>;
@@ -26,7 +21,6 @@ export default function ImageGallery({
 }: ImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [zoomed, setZoomed] = useState(false);
   const [errorImages, setErrorImages] = useState<Set<string>>(new Set());
 
   const touchStartX = useRef<number | null>(null);
@@ -183,7 +177,7 @@ export default function ImageGallery({
 
       {/* Lightbox */}
       <Dialog onOpenChange={setLightboxOpen} open={lightboxOpen}>
-        <DialogContent className="flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col items-center justify-center bg-black/95 p-0">
+        <DialogContent className="flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col bg-black/95 p-0">
           <DialogTitle className="sr-only">
             {planNumber} - Image {selectedIndex + 1}
           </DialogTitle>
@@ -191,22 +185,7 @@ export default function ImageGallery({
             Full-screen view of floor plan image
           </DialogDescription>
 
-          {/* Zoom toggle */}
-          <div className="absolute top-4 right-14 z-10">
-            <Button
-              onClick={() => setZoomed((z) => !z)}
-              size="icon"
-              variant="ghost"
-            >
-              {zoomed ? (
-                <ZoomOut className="h-5 w-5 text-white" />
-              ) : (
-                <ZoomIn className="h-5 w-5 text-white" />
-              )}
-            </Button>
-          </div>
-
-          {/* Image */}
+          {/* Image with zoom controls — fills the dialog */}
           {currentImageHasError ? (
             <div className="flex h-full w-full flex-col items-center justify-center">
               <ImageOff className="h-16 w-16 text-muted-foreground" />
@@ -215,23 +194,11 @@ export default function ImageGallery({
               </p>
             </div>
           ) : (
-            <button
-              className="flex h-full w-full items-center justify-center overflow-auto border-none bg-transparent p-0"
-              onClick={() => setZoomed((z) => !z)}
-              type="button"
-            >
-              <img
-                alt={`${planNumber} - ${selectedIndex + 1} of ${images.length}`}
-                className={cn(
-                  "max-h-full transition-transform duration-200",
-                  zoomed
-                    ? "scale-150 cursor-zoom-out"
-                    : "scale-100 cursor-zoom-in"
-                )}
-                onError={() => handleImageError(currentImage)}
-                src={currentImage}
-              />
-            </button>
+            <ZoomableImage
+              alt={`${planNumber} - ${selectedIndex + 1} of ${images.length}`}
+              key={currentImage}
+              src={currentImage}
+            />
           )}
 
           {/* Navigation arrows */}

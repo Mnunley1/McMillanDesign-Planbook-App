@@ -33,6 +33,12 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
+    sessionStorage.setItem(
+      "lastSearchUrl",
+      window.location.pathname + window.location.search
+    );
+    sessionStorage.setItem("pendingScrollToPlan", hit.objectID);
+
     if (sendEvent) {
       sendEvent({
         eventName: "click",

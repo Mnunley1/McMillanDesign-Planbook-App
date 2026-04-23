@@ -10,19 +10,23 @@ import { cn } from "@/lib/utils";
 
 interface PaginationItemProps extends React.ComponentProps<typeof Button> {
   href?: string;
+  isActive?: boolean;
   isDisabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
 }
 
 function PaginationItem({
+  isActive,
   isDisabled,
   href,
   onClick,
   className,
   ...props
 }: PaginationItemProps) {
+  const variant = isActive ? "default" : "outline";
   const buttonClasses = cn(
-    "min-w-[2.5rem] transition-colors hover:bg-accent hover:text-accent-foreground",
+    "min-w-[2.5rem] transition-colors",
+    !isActive && "hover:bg-accent hover:text-accent-foreground",
     className
   );
 
@@ -32,7 +36,7 @@ function PaginationItem({
         className={buttonClasses}
         disabled
         size="sm"
-        variant="outline"
+        variant={variant}
         {...props}
       />
     );
@@ -44,7 +48,7 @@ function PaginationItem({
         asChild
         className={buttonClasses}
         size="sm"
-        variant="outline"
+        variant={variant}
         {...props}
       >
         <a
@@ -69,7 +73,7 @@ function PaginationItem({
       className={buttonClasses}
       onClick={onClick}
       size="sm"
-      variant="outline"
+      variant={variant}
       {...props}
     />
   );
@@ -178,15 +182,13 @@ function CustomPagination({ className }: CustomPaginationProps) {
       <div className="flex items-center gap-2">
         {pages.map((page) => {
           const label = page + 1;
+          const isActive = currentRefinement === page;
           return (
             <PaginationItem
-              aria-current={currentRefinement === page ? "page" : undefined}
+              aria-current={isActive ? "page" : undefined}
               aria-label={`Page ${label}`}
-              className={cn(
-                currentRefinement === page &&
-                  "bg-primary text-primary-foreground"
-              )}
               href={createURL(page)}
+              isActive={isActive}
               isDisabled={false}
               key={page}
               onClick={() => handlePageChange(page)}

@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { SortItem } from "@/types/floor-plan";
 
 const allPlansSortItems: SortItem[] = [
-  { label: "Default", value: "allPlans" },
   { label: "Newest", value: "allPlans_dateAdded_desc" },
   { label: "Oldest", value: "allPlans_dateAdded_asc" },
   { label: "Bedrooms (asc)", value: "allPlans_bedrooms_asc" },
@@ -16,7 +15,6 @@ const allPlansSortItems: SortItem[] = [
 ];
 
 const publishedSortItems: SortItem[] = [
-  { label: "Default", value: "floorPlans" },
   { label: "Newest", value: "floorPlans_dateAdded_desc" },
   { label: "Oldest", value: "floorPlans_dateAdded_asc" },
   { label: "Bedrooms (asc)", value: "floorPlans_bedrooms_asc" },

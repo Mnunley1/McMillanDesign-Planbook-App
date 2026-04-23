@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -13,10 +14,14 @@ import {
 } from "./ui/dropdown-menu";
 
 interface MobileSortButtonProps {
+  baseIndex: string;
   sortItems: SortItem[];
 }
 
-export default function MobileSortButton({ sortItems }: MobileSortButtonProps) {
+export default function MobileSortButton({
+  baseIndex,
+  sortItems,
+}: MobileSortButtonProps) {
   const { currentRefinement, refine, canRefine } = useSortBy({
     items: sortItems,
   });
@@ -27,6 +32,7 @@ export default function MobileSortButton({ sortItems }: MobileSortButtonProps) {
 
   const currentLabel =
     sortItems.find((item) => item.value === currentRefinement)?.label ?? "Sort";
+  const isActive = sortItems.some((item) => item.value === currentRefinement);
 
   return (
     <DropdownMenu>
@@ -49,6 +55,14 @@ export default function MobileSortButton({ sortItems }: MobileSortButtonProps) {
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
+        {isActive && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => refine(baseIndex)}>
+              Clear sort
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
