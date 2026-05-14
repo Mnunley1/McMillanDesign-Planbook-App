@@ -72,6 +72,7 @@ function Stats() {
 }
 
 interface ResultsHeaderProps {
+  baseIndex: string;
   sortItems: SortItem[];
 }
 
@@ -82,6 +83,7 @@ interface ResultsHeaderFullProps extends ResultsHeaderProps {
 
 // Results Header component
 function ResultsHeader({
+  baseIndex,
   sortItems,
   viewMode,
   onViewModeChange,
@@ -91,14 +93,14 @@ function ResultsHeader({
       <div className="flex items-center justify-between gap-4 md:justify-start">
         <Stats />
         <div className="flex items-center gap-2 md:hidden">
-          <MobileSortButton sortItems={sortItems} />
+          <MobileSortButton baseIndex={baseIndex} sortItems={sortItems} />
           <MobileFilters />
         </div>
       </div>
       <div className="hidden items-center gap-3 md:flex">
         <SavedSearches />
         <ViewToggle onChange={onViewModeChange} value={viewMode} />
-        <CustomSortBy items={sortItems} />
+        <CustomSortBy baseIndex={baseIndex} items={sortItems} />
       </div>
     </div>
   );
@@ -314,6 +316,40 @@ function FiltersCard() {
   );
 }
 
+// Scrolls the most recently clicked plan card back into view when the user
+// returns to the search page from a plan detail.
+function ScrollRestorer() {
+  const { status, results } = useInstantSearch();
+  const attemptedRef = useRef(false);
+
+  useEffect(() => {
+    if (attemptedRef.current) {
+      return;
+    }
+    if (status !== "idle" || !results || results.hits.length === 0) {
+      return;
+    }
+    const planId = sessionStorage.getItem("pendingScrollToPlan");
+    if (!planId) {
+      return;
+    }
+
+    attemptedRef.current = true;
+    sessionStorage.removeItem("pendingScrollToPlan");
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(planId);
+        if (el) {
+          el.scrollIntoView({ block: "center", behavior: "auto" });
+        }
+      });
+    });
+  }, [status, results]);
+
+  return null;
+}
+
 function SearchEventTracker() {
   const { indexUiState, results } = useInstantSearch();
   const { user } = useUser();
@@ -395,6 +431,7 @@ export default function PlanSearch({ indexName, sortItems }: PlanSearchProps) {
       stalledSearchDelay={500}
     >
       <SearchEventTracker />
+      <ScrollRestorer />
       <Container className="max-w-full">
         <div className="py-6">
           {/* Main Content Grid */}
@@ -416,6 +453,7 @@ export default function PlanSearch({ indexName, sortItems }: PlanSearchProps) {
               <div className="space-y-6">
                 <OnboardingBanner />
                 <ResultsHeader
+                  baseIndex={indexName}
                   onViewModeChange={handleViewModeChange}
                   sortItems={sortItems}
                   viewMode={viewMode}

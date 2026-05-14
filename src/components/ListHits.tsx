@@ -82,15 +82,24 @@ export default function ListHits({ className }: ListHitsProps) {
             const targetUrl = isMasterRoute
               ? `/master/plan/${hit.objectID}`
               : `/plan/${hit.objectID}`;
+            const goToPlan = () => {
+              sessionStorage.setItem(
+                "lastSearchUrl",
+                window.location.pathname + window.location.search
+              );
+              sessionStorage.setItem("pendingScrollToPlan", hit.objectID);
+              navigate(targetUrl);
+            };
             return (
               <TableRow
                 className="cursor-pointer focus-visible:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                id={hit.objectID}
                 key={hit.objectID}
-                onClick={() => navigate(targetUrl)}
+                onClick={goToPlan}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    navigate(targetUrl);
+                    goToPlan();
                   }
                 }}
                 role="link"

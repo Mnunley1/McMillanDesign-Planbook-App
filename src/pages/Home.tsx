@@ -2,7 +2,6 @@ import PlanSearch from "@/components/PlanSearch";
 import type { SortItem } from "@/types/floor-plan";
 
 const sortItems: SortItem[] = [
-  { label: "Default", value: "floorPlans" },
   { label: "Newest", value: "floorPlans_dateAdded_desc" },
   { label: "Oldest", value: "floorPlans_dateAdded_asc" },
   { label: "Bedrooms (asc)", value: "floorPlans_bedrooms_asc" },
