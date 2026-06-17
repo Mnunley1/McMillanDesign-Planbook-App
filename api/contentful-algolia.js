@@ -33,20 +33,32 @@ function getIndex() {
   return client.initIndex(indexName);
 }
 
+async function readRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 // Contentful posts with Content-Type `application/vnd.contentful.management.v1+json`,
-// which Vercel does not auto-parse — so `req.body` may arrive as a string or
-// Buffer. Normalize to an object.
-function parseBody(body) {
-  if (body == null) {
-    return null;
+// which Vercel does not auto-parse. Depending on the runtime, `req.body` may be
+// an already-parsed object, a string/Buffer, or empty (body left on the stream).
+// Handle all cases.
+async function getEntry(req) {
+  const body = req.body;
+  if (body && typeof body === "object" && !Buffer.isBuffer(body)) {
+    return body;
   }
+  let raw;
   if (Buffer.isBuffer(body)) {
-    return JSON.parse(body.toString("utf8"));
+    raw = body.toString("utf8");
+  } else if (typeof body === "string" && body.length > 0) {
+    raw = body;
+  } else {
+    raw = await readRawBody(req);
   }
-  if (typeof body === "string") {
-    return JSON.parse(body);
-  }
-  return body;
+  return raw ? JSON.parse(raw) : null;
 }
 
 export default async function handler(req, res) {
@@ -63,7 +75,7 @@ export default async function handler(req, res) {
 
   let entry;
   try {
-    entry = parseBody(req.body);
+    entry = await getEntry(req);
   } catch {
     res.status(400).json({ error: "Invalid JSON body" });
     return;
