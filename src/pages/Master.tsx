@@ -5,6 +5,9 @@ import { PLANS_INDEX, planSortItems } from "@/lib/algolia";
 
 type IndexMode = "all" | "published" | "unpublished";
 
+const TAB_STORAGE_KEY = "planbook-master-tab";
+const MODES: IndexMode[] = ["all", "published", "unpublished"];
+
 // All tabs query the single `plans` index; they differ only by publish filter.
 const FILTER_BY_MODE: Record<IndexMode, string | undefined> = {
   all: undefined,
@@ -13,15 +16,21 @@ const FILTER_BY_MODE: Record<IndexMode, string | undefined> = {
 };
 
 function Master() {
-  const [mode, setMode] = useState<IndexMode>("all");
+  const [mode, setMode] = useState<IndexMode>(() => {
+    const saved = localStorage.getItem(TAB_STORAGE_KEY) as IndexMode | null;
+    return saved && MODES.includes(saved) ? saved : "all";
+  });
+
+  const handleModeChange = (value: string) => {
+    const next = value as IndexMode;
+    setMode(next);
+    localStorage.setItem(TAB_STORAGE_KEY, next);
+  };
 
   return (
     <div>
       <div className="flex justify-center pt-6">
-        <Tabs
-          onValueChange={(value) => setMode(value as IndexMode)}
-          value={mode}
-        >
+        <Tabs onValueChange={handleModeChange} value={mode}>
           <TabsList>
             <TabsTrigger value="all">All Plans</TabsTrigger>
             <TabsTrigger value="published">Published Only</TabsTrigger>
