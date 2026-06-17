@@ -2,7 +2,11 @@ import { useUser } from "@clerk/clerk-react";
 import { useMutation } from "convex/react";
 import { Lightbulb, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { InstantSearch, useInstantSearch } from "react-instantsearch";
+import {
+  Configure,
+  InstantSearch,
+  useInstantSearch,
+} from "react-instantsearch";
 import { Outlet } from "react-router-dom";
 import { searchClient } from "@/lib/algolia";
 import type { SortItem } from "@/types/floor-plan";
@@ -406,11 +410,17 @@ function SearchEventTracker() {
 }
 
 interface PlanSearchProps {
+  /** Algolia filter expression applied to every query (e.g. "published:true"). */
+  filters?: string;
   indexName: string;
   sortItems: SortItem[];
 }
 
-export default function PlanSearch({ indexName, sortItems }: PlanSearchProps) {
+export default function PlanSearch({
+  indexName,
+  sortItems,
+  filters,
+}: PlanSearchProps) {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     return (localStorage.getItem("planbook-view-mode") as ViewMode) || "grid";
   });
@@ -430,6 +440,7 @@ export default function PlanSearch({ indexName, sortItems }: PlanSearchProps) {
       searchClient={searchClient}
       stalledSearchDelay={500}
     >
+      {filters ? <Configure filters={filters} /> : null}
       <SearchEventTracker />
       <ScrollRestorer />
       <Container className="max-w-full">
