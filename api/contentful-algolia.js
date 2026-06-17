@@ -33,6 +33,22 @@ function getIndex() {
   return client.initIndex(indexName);
 }
 
+// Contentful posts with Content-Type `application/vnd.contentful.management.v1+json`,
+// which Vercel does not auto-parse — so `req.body` may arrive as a string or
+// Buffer. Normalize to an object.
+function parseBody(body) {
+  if (body == null) {
+    return null;
+  }
+  if (Buffer.isBuffer(body)) {
+    return JSON.parse(body.toString("utf8"));
+  }
+  if (typeof body === "string") {
+    return JSON.parse(body);
+  }
+  return body;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -45,7 +61,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  const entry = req.body;
+  let entry;
+  try {
+    entry = parseBody(req.body);
+  } catch {
+    res.status(400).json({ error: "Invalid JSON body" });
+    return;
+  }
+
   const sys = entry?.sys;
   if (!sys?.id) {
     res.status(400).json({ error: "Missing entry sys.id" });
@@ -64,28 +87,40 @@ export default async function handler(req, res) {
     .split(".")
     .pop();
 
-  // publish/unpublish are authoritative; for saves we derive from sys so that
-  // saving a draft edit to an already-published entry becomes "changed"
-  // (still public) rather than hiding it.
-  let status;
-  if (action === "publish") {
-    status = STATUS.PUBLISHED;
-  } else if (action === "unpublish") {
-    status = STATUS.DRAFT;
-  } else {
-    status = deriveStatus(sys);
-  }
-
   try {
     const index = getIndex();
-    // Archived or deleted entries are removed from the index entirely.
-    if (action === "delete" || status === STATUS.ARCHIVED) {
+
+    // delete/archive remove the record entirely.
+    if (action === "delete" || action === "archive") {
       await index.deleteObject(sys.id);
-    } else {
-      await index.saveObject(
-        toAlgoliaRecord(entry, { status, localized: true })
-      );
+      res.status(200).json({ ok: true, action, id: sys.id, removed: true });
+      return;
     }
+
+    // unpublish sends a `DeletedEntry` payload with NO fields — the entry still
+    // exists as a draft in Contentful. Flip status/published via a partial
+    // update so the record keeps all its existing field data.
+    if (action === "unpublish") {
+      await index.partialUpdateObject({
+        objectID: sys.id,
+        status: STATUS.DRAFT,
+        published: false,
+        publishedAt: null,
+      });
+      res
+        .status(200)
+        .json({ ok: true, action, id: sys.id, status: STATUS.DRAFT });
+      return;
+    }
+
+    // create/save/auto_save/publish/unarchive carry the full entry with fields.
+    const status = action === "publish" ? STATUS.PUBLISHED : deriveStatus(sys);
+    if (status === STATUS.ARCHIVED) {
+      await index.deleteObject(sys.id);
+      res.status(200).json({ ok: true, action, id: sys.id, removed: true });
+      return;
+    }
+    await index.saveObject(toAlgoliaRecord(entry, { status, localized: true }));
     res.status(200).json({ ok: true, action, id: sys.id, status });
   } catch (error) {
     res.status(500).json({ error: error?.message || "Sync failed" });
