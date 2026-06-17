@@ -22,6 +22,8 @@ interface FloorPlanCardProps {
 function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
   const location = useLocation();
   const isMasterRoute = location.pathname.startsWith("/master");
+  // Only admins see unpublished plans; flag them on the card.
+  const unpublished = isMasterRoute && hit.published === false;
   const [imageError, setImageError] = useState(false);
 
   const { isSelected } = useComparison();
@@ -126,6 +128,16 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
           >
             {squareFootage.toLocaleString()} sqft
           </Badge>
+
+          {/* Unpublished/draft indicator */}
+          {unpublished && (
+            <Badge
+              className="absolute bottom-2 left-2 bg-amber-500/90 text-white text-xs shadow-sm hover:bg-amber-500"
+              variant="default"
+            >
+              Unpublished
+            </Badge>
+          )}
 
           {/* Recently added pill with time context */}
           {recentlyAddedLabel && (

@@ -4,7 +4,7 @@ import EmptyState from "@/components/EmptyState";
 import FloorPlanCard from "@/components/FloorPlanCard";
 import { Container } from "@/components/ui/container";
 import { useFavorites } from "@/hooks/use-favorites";
-import { searchClient } from "@/lib/algolia";
+import { PLANS_INDEX, searchClient } from "@/lib/algolia";
 import type { FloorPlanHit } from "@/types/floor-plan";
 
 export default function Favorites() {
@@ -17,9 +17,11 @@ export default function Favorites() {
       if (planIds.length === 0) {
         return [];
       }
-      const index = searchClient.initIndex("floorPlans");
+      const index = searchClient.initIndex(PLANS_INDEX);
       const { results } = await index.getObjects<FloorPlanHit>(planIds);
-      return results.filter((r): r is FloorPlanHit => r !== null);
+      return results.filter(
+        (r): r is FloorPlanHit => r !== null && r.published !== false
+      );
     },
     enabled: planIds.length > 0,
     staleTime: 2 * 60 * 1000,
