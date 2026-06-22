@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/clerk-react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -14,6 +15,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { usePlanData } from "@/hooks/use-plan-data";
 import type { FloorPlanHit } from "@/types/floor-plan";
 import { downloadFile, printImage } from "@/utils/planUtils";
+import AddToCollectionDialog from "./AddToCollectionDialog";
 import FloorPlanInfo from "./FloorPlanInfo";
 import { Button } from "./ui/button";
 import {
@@ -37,6 +39,8 @@ export default function ModalPlan() {
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const isMasterRoute = location.pathname.startsWith("/master");
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
 
   // Swipe gesture tracking
   const touchStartRef = useRef<number | null>(null);
@@ -137,20 +141,22 @@ export default function ModalPlan() {
               "View floor plan details, specifications, and download options."}
           </DialogDescription>
         </DialogHeader>
-        <Button
-          className="absolute top-3 right-3 z-10 text-muted-foreground hover:text-foreground"
-          onClick={handleClose}
-          size="icon"
-          variant="ghost"
-        >
-          <X className="h-5 w-5" />
-          <span className="sr-only">Close</span>
-        </Button>
         <div
           className="h-full overflow-y-auto bg-background p-4 md:p-8"
           onTouchEnd={handleTouchEnd}
           onTouchStart={handleTouchStart}
         >
+          <div className="mb-3 flex justify-end">
+            <Button
+              className="text-muted-foreground hover:text-foreground"
+              onClick={handleClose}
+              size="icon"
+              variant="ghost"
+            >
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
           <div className="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div className="flex items-center gap-2">
               <Button
@@ -213,6 +219,9 @@ export default function ModalPlan() {
                 <Printer className="mr-2 h-4 w-4" />
                 Print Plan
               </Button>
+              {isMasterRoute && isAdmin && id && (
+                <AddToCollectionDialog planId={id} />
+              )}
             </div>
           </div>
 

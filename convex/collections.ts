@@ -14,9 +14,17 @@ export const list = query({
 });
 
 export const get = query({
-  args: { id: v.id("collections") },
-  handler: async (ctx, { id }) => {
-    return await ctx.db.get(id);
+  args: { id: v.id("collections"), userId: v.optional(v.string()) },
+  handler: async (ctx, { id, userId }) => {
+    const collection = await ctx.db.get(id);
+    if (!collection) {
+      return null;
+    }
+    // Only the owner may view a non-public (draft) collection.
+    if (collection.status !== "public" && collection.userId !== userId) {
+      return null;
+    }
+    return collection;
   },
 });
 
