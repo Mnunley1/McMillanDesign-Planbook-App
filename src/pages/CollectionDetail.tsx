@@ -19,7 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCollection, useCollections } from "@/hooks/use-collections";
-import { searchClient } from "@/lib/algolia";
+import { PLANS_INDEX, searchClient } from "@/lib/algolia";
 import type { FloorPlanHit } from "@/types/floor-plan";
 
 function SkeletonCard() {
@@ -56,9 +56,11 @@ export default function CollectionDetail() {
       if (planIds.length === 0) {
         return [];
       }
-      const index = searchClient.initIndex("floorPlans");
+      const index = searchClient.initIndex(PLANS_INDEX);
       const { results } = await index.getObjects<FloorPlanHit>(planIds);
-      return results.filter((r): r is FloorPlanHit => r !== null);
+      return results.filter(
+        (r): r is FloorPlanHit => r !== null && r.published !== false
+      );
     },
     enabled: planIds.length > 0,
     staleTime: 2 * 60 * 1000,

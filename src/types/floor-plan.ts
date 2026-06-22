@@ -13,8 +13,10 @@ export interface FloorPlanHit {
   planType?: string;
   planWidth?: number;
   primarySuite?: string;
+  published?: boolean;
   sqft?: number;
   squareFeet: number;
+  status?: "draft" | "published" | "changed" | "archived";
   vehicleSpaces?: number;
   walkupAttic?: boolean;
 }

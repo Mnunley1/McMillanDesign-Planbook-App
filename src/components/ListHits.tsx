@@ -1,9 +1,11 @@
+import { useUser } from "@clerk/clerk-react";
 import { ImageOff } from "lucide-react";
 import { useState } from "react";
 import { useHits, useInstantSearch } from "react-instantsearch";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import type { FloorPlanHit } from "@/types/floor-plan";
+import AddToCollectionDialog from "./AddToCollectionDialog";
 import SearchEmptyState from "./SearchEmptyState";
 import {
   Table,
@@ -46,6 +48,9 @@ export default function ListHits({ className }: ListHitsProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isMasterRoute = location.pathname.startsWith("/master");
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  const showActions = isMasterRoute && isAdmin;
   const isSearching = status === "loading" || status === "stalled";
 
   if (!isSearching && hits.length === 0) {
@@ -74,6 +79,7 @@ export default function ListHits({ className }: ListHitsProps) {
             <TableHead>Sq Ft</TableHead>
             <TableHead className="hidden md:table-cell">Width</TableHead>
             <TableHead className="hidden md:table-cell">Depth</TableHead>
+            {showActions && <TableHead className="w-12" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -126,6 +132,14 @@ export default function ListHits({ className }: ListHitsProps) {
                 <TableCell className="hidden md:table-cell">
                   {hit.planDepth ? `${hit.planDepth}'` : "—"}
                 </TableCell>
+                {showActions && (
+                  <TableCell
+                    className="p-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <AddToCollectionDialog compact planId={hit.objectID} />
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}

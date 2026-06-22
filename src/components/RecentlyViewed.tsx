@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { useState } from "react";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
-import { searchClient } from "@/lib/algolia";
+import { PLANS_INDEX, searchClient } from "@/lib/algolia";
 import type { FloorPlanHit } from "@/types/floor-plan";
 import FloorPlanCard from "./FloorPlanCard";
 import { Button } from "./ui/button";
@@ -20,9 +20,11 @@ export default function RecentlyViewed() {
       if (planIds.length === 0) {
         return [];
       }
-      const index = searchClient.initIndex("floorPlans");
+      const index = searchClient.initIndex(PLANS_INDEX);
       const { results } = await index.getObjects<FloorPlanHit>(planIds);
-      return results.filter((r): r is FloorPlanHit => r !== null);
+      return results.filter(
+        (r): r is FloorPlanHit => r !== null && r.published !== false
+      );
     },
     enabled: planIds.length > 0,
     staleTime: 2 * 60 * 1000,

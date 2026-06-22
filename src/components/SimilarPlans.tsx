@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { searchClient } from "@/lib/algolia";
+import { PLANS_INDEX, PUBLISHED_FILTER, searchClient } from "@/lib/algolia";
 import { cn } from "@/lib/utils";
 import type { FloorPlanHit } from "@/types/floor-plan";
 import FloorPlanCard from "./FloorPlanCard";
@@ -23,8 +23,11 @@ export default function SimilarPlans({
   const { data: similarPlans = [], isLoading } = useQuery({
     queryKey: ["similar-plans", currentPlanId, bedrooms, planType],
     queryFn: async () => {
-      const index = searchClient.initIndex("floorPlans");
-      const filters: string[] = [`NOT objectID:${currentPlanId}`];
+      const index = searchClient.initIndex(PLANS_INDEX);
+      const filters: string[] = [
+        PUBLISHED_FILTER,
+        `NOT objectID:${currentPlanId}`,
+      ];
 
       if (planType) {
         filters.push(`planType:${planType}`);

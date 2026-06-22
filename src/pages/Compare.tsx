@@ -38,7 +38,7 @@ import {
 import ZoomableImage from "@/components/ZoomableImage";
 import { useComparison } from "@/hooks/use-comparison";
 import { useSavedComparisons } from "@/hooks/use-saved-comparisons";
-import { searchClient } from "@/lib/algolia";
+import { PLANS_INDEX, searchClient } from "@/lib/algolia";
 import { cn } from "@/lib/utils";
 import type { FloorPlanHit } from "@/types/floor-plan";
 
@@ -149,9 +149,11 @@ export default function Compare() {
       if (selectedIds.length === 0) {
         return [];
       }
-      const index = searchClient.initIndex("floorPlans");
+      const index = searchClient.initIndex(PLANS_INDEX);
       const { results } = await index.getObjects<FloorPlanHit>(selectedIds);
-      return results.filter((r): r is FloorPlanHit => r !== null);
+      return results.filter(
+        (r): r is FloorPlanHit => r !== null && r.published !== false
+      );
     },
     enabled: selectedIds.length > 0,
     staleTime: 5 * 60 * 1000,
