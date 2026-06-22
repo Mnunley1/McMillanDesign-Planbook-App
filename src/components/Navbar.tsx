@@ -196,12 +196,18 @@ function Navbar() {
                       to="/compare"
                     />
                     {!isAdmin && (
-                      <NavLink
-                        icon={<FolderOpen className="h-4 w-4" />}
-                        label="Collections"
-                        onClick={closeMenu}
-                        to="/collections"
-                      />
+                      <>
+                        <Separator className="my-2" />
+                        <p className="px-3 py-1 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                          Collections
+                        </p>
+                        <NavLink
+                          icon={<FolderOpen className="h-4 w-4" />}
+                          label="Browse Collections"
+                          onClick={closeMenu}
+                          to="/collections"
+                        />
+                      </>
                     )}
 
                     {/* Admin section */}

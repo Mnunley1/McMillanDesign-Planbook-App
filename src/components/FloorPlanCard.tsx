@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/clerk-react";
 import { ArrowRight, BedDouble, ImageOff, Ruler } from "lucide-react";
 import { useState } from "react";
 import type { useHits } from "react-instantsearch";
@@ -8,6 +9,7 @@ import { useComparison } from "@/hooks/use-comparison";
 import { useFavorites } from "@/hooks/use-favorites";
 import { cn, getTimeAgo, isRecentlyAdded } from "@/lib/utils";
 import type { FloorPlanHit } from "@/types/floor-plan";
+import AddToCollectionDialog from "./AddToCollectionDialog";
 import CompareButton from "./CompareButton";
 import FavoriteButton from "./FavoriteButton";
 
@@ -22,6 +24,8 @@ interface FloorPlanCardProps {
 function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
   const location = useLocation();
   const isMasterRoute = location.pathname.startsWith("/master");
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
   // Only admins see unpublished plans; flag them on the card.
   const unpublished = isMasterRoute && hit.published === false;
   const [imageError, setImageError] = useState(false);
@@ -163,6 +167,13 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
               planId={hit.objectID}
               planNumber={hit.planNumber}
             />
+            {isMasterRoute && isAdmin && (
+              <AddToCollectionDialog
+                className="min-h-[44px] min-w-[44px] bg-background/80 shadow-sm backdrop-blur-sm"
+                compact
+                planId={hit.objectID}
+              />
+            )}
             <FavoriteButton
               className="min-h-[44px] min-w-[44px] bg-background/80 shadow-sm backdrop-blur-sm"
               planId={hit.objectID}

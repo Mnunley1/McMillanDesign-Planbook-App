@@ -61,9 +61,10 @@ export function usePublicCollections() {
 }
 
 export function useCollection(id: string | undefined) {
+  const { user } = useUser();
   const collection = useQuery(
     api.collections.get,
-    id ? { id: id as Id<"collections"> } : "skip"
+    id ? { id: id as Id<"collections">, userId: user?.id } : "skip"
   );
 
   return collection;
