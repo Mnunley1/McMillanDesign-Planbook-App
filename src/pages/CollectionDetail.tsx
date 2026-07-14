@@ -51,7 +51,7 @@ export default function CollectionDetail() {
   const status = collection?.status ?? "draft";
 
   const { data: plans = [], isLoading: plansLoading } = useQuery({
-    queryKey: ["collection-plans", id, planIds],
+    queryKey: ["collection-plans", id, planIds, isAdmin],
     queryFn: async () => {
       if (planIds.length === 0) {
         return [];
@@ -59,12 +59,21 @@ export default function CollectionDetail() {
       const index = searchClient.initIndex(PLANS_INDEX);
       const { results } = await index.getObjects<FloorPlanHit>(planIds);
       return results.filter(
-        (r): r is FloorPlanHit => r !== null && r.published !== false
+        // Admins curate from the full catalog, so they must still see the
+        // unpublished plans they added (flagged as such on the card). Only the
+        // public-facing view hides them.
+        (r): r is FloorPlanHit =>
+          r !== null && (isAdmin || r.published !== false)
       );
     },
     enabled: planIds.length > 0,
     staleTime: 2 * 60 * 1000,
   });
+
+  // Plans can be in the collection yet resolve to nothing renderable — every
+  // one unpublished (non-admin view) or deleted from the index.
+  const allPlansHidden =
+    !plansLoading && planIds.length > 0 && plans.length === 0;
 
   const handleRemovePlan = (planId: string) => {
     if (!collection) {
@@ -225,6 +234,18 @@ export default function CollectionDetail() {
           description="Browse plans and add them to this collection"
           icon={FolderOpen}
           title="This collection is empty"
+        />
+      )}
+
+      {allPlansHidden && (
+        <EmptyState
+          description={
+            isAdmin
+              ? "The plans in this collection are no longer in the search index."
+              : "The plans in this collection aren't published yet. Check back soon."
+          }
+          icon={FolderOpen}
+          title="Nothing to show yet"
         />
       )}
 

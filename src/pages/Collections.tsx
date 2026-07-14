@@ -8,19 +8,20 @@ import { Container } from "@/components/ui/container";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCollections, usePublicCollections } from "@/hooks/use-collections";
 
-type CollectionsView = "mine" | "public";
+type CollectionsView = "all" | "public";
 
 export default function Collections() {
   const { user } = useUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
-  const { collections: myCollections } = useCollections();
+  const { collections: adminCollections } = useCollections();
   const { collections: publicCollections } = usePublicCollections();
-  const [view, setView] = useState<CollectionsView>("mine");
+  const [view, setView] = useState<CollectionsView>("all");
 
-  // Admins can switch between managing their own collections and previewing
-  // the public-facing view exactly as a non-admin sees it.
+  // Admins can switch between the shared curation library (every admin's
+  // collections) and a preview of the public-facing view exactly as a non-admin
+  // sees it.
   const showingPublicView = !isAdmin || view === "public";
-  const collections = showingPublicView ? publicCollections : myCollections;
+  const collections = showingPublicView ? publicCollections : adminCollections;
 
   return (
     <Container className="max-w-6xl py-8">
@@ -48,7 +49,7 @@ export default function Collections() {
           value={view}
         >
           <TabsList>
-            <TabsTrigger value="mine">My Collections</TabsTrigger>
+            <TabsTrigger value="all">All Collections</TabsTrigger>
             <TabsTrigger value="public">Public Preview</TabsTrigger>
           </TabsList>
         </Tabs>

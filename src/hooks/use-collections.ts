@@ -1,16 +1,12 @@
-import { useUser } from "@clerk/clerk-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
+// Collections are a shared admin library — the server derives the caller's
+// identity and role from the Clerk token, so nothing here passes a userId.
+// Non-admins get an empty list from `list` and use `usePublicCollections`.
 export function useCollections() {
-  const { user } = useUser();
-  const userId = user?.id ?? "";
-
-  const collections = useQuery(
-    api.collections.list,
-    userId ? { userId } : "skip"
-  );
+  const collections = useQuery(api.collections.list, {});
 
   const createMutation = useMutation(api.collections.create);
   const updateMutation = useMutation(api.collections.update);
@@ -22,10 +18,7 @@ export function useCollections() {
     planIds: string[] = [],
     status = "draft"
   ) => {
-    if (!userId) {
-      return;
-    }
-    createMutation({ userId, name, description, planIds, status });
+    createMutation({ name, description, planIds, status });
   };
 
   const update = (
@@ -61,10 +54,9 @@ export function usePublicCollections() {
 }
 
 export function useCollection(id: string | undefined) {
-  const { user } = useUser();
   const collection = useQuery(
     api.collections.get,
-    id ? { id: id as Id<"collections">, userId: user?.id } : "skip"
+    id ? { id: id as Id<"collections"> } : "skip"
   );
 
   return collection;

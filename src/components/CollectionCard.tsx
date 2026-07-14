@@ -31,7 +31,7 @@ export default function CollectionCard({
   const previewIds = planIds.slice(0, 4);
 
   const { data: images = [] } = useQuery({
-    queryKey: ["collection-cover", id, previewIds],
+    queryKey: ["collection-cover", id, previewIds, isAdmin],
     queryFn: async () => {
       if (previewIds.length === 0) {
         return [] as string[];
@@ -39,7 +39,12 @@ export default function CollectionCard({
       const index = searchClient.initIndex(PLANS_INDEX);
       const { results } = await index.getObjects<FloorPlanHit>(previewIds);
       return results
-        .filter((r): r is FloorPlanHit => r !== null && r.published !== false)
+        .filter(
+          // Match the detail view: admins see covers for unpublished plans
+          // they curated; the public preview hides them.
+          (r): r is FloorPlanHit =>
+            r !== null && (Boolean(isAdmin) || r.published !== false)
+        )
         .map((r) => r.image)
         .filter((src): src is string => Boolean(src));
     },
