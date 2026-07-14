@@ -26,8 +26,9 @@ function FloorPlanCard({ hit, sendEvent, className }: FloorPlanCardProps) {
   const isMasterRoute = location.pathname.startsWith("/master");
   const { user } = useUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
-  // Only admins see unpublished plans; flag them on the card.
-  const unpublished = isMasterRoute && hit.published === false;
+  // Only admins are ever served unpublished plans (on /master, and in
+  // collections), so flag them wherever they surface.
+  const unpublished = isAdmin && hit.published === false;
   const [imageError, setImageError] = useState(false);
 
   const { isSelected } = useComparison();
