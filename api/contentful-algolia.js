@@ -16,12 +16,8 @@
 //   CONTENTFUL_WEBHOOK_SECRET - shared secret matching the webhook header
 
 import algoliasearch from "algoliasearch";
-import {
-  CONTENT_TYPE_ID,
-  deriveStatus,
-  STATUS,
-  toAlgoliaRecord,
-} from "./_shared/floor-plan-record.js";
+import { CONTENT_TYPE_ID } from "./_shared/floor-plan-record.js";
+import { syncFloorPlan } from "./_shared/sync-floor-plan.js";
 
 const indexName = process.env.ALGOLIA_INDEX || "plans";
 
@@ -100,40 +96,8 @@ export default async function handler(req, res) {
     .pop();
 
   try {
-    const index = getIndex();
-
-    // delete/archive remove the record entirely.
-    if (action === "delete" || action === "archive") {
-      await index.deleteObject(sys.id);
-      res.status(200).json({ ok: true, action, id: sys.id, removed: true });
-      return;
-    }
-
-    // unpublish sends a `DeletedEntry` payload with NO fields — the entry still
-    // exists as a draft in Contentful. Flip status/published via a partial
-    // update so the record keeps all its existing field data.
-    if (action === "unpublish") {
-      await index.partialUpdateObject({
-        objectID: sys.id,
-        status: STATUS.DRAFT,
-        published: false,
-        publishedAt: null,
-      });
-      res
-        .status(200)
-        .json({ ok: true, action, id: sys.id, status: STATUS.DRAFT });
-      return;
-    }
-
-    // create/save/auto_save/publish/unarchive carry the full entry with fields.
-    const status = action === "publish" ? STATUS.PUBLISHED : deriveStatus(sys);
-    if (status === STATUS.ARCHIVED) {
-      await index.deleteObject(sys.id);
-      res.status(200).json({ ok: true, action, id: sys.id, removed: true });
-      return;
-    }
-    await index.saveObject(toAlgoliaRecord(entry, { status, localized: true }));
-    res.status(200).json({ ok: true, action, id: sys.id, status });
+    const result = await syncFloorPlan(getIndex(), entry, action);
+    res.status(200).json({ ok: true, action, id: sys.id, ...result });
   } catch (error) {
     res.status(500).json({ error: error?.message || "Sync failed" });
   }
